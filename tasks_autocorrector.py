@@ -238,7 +238,7 @@ def evaluate_solution(module_battery_of_tests):
     print("Evaluating solution...\n")
     with open(FILENAME_CONSOLE_OUTPUT_SOLUTION, 'w', encoding="UTF-8") as file:
         sys.stdout = file
-        module_battery_of_tests.main(FILE_PATH_SOLUTION_SCRIPT)
+        module_battery_of_tests.autocorrector(FILE_PATH_SOLUTION_SCRIPT)
     sys.stdout = DEFAULT_OUTPUT
 
 
@@ -260,11 +260,11 @@ def evaluate_submission(module_battery_of_tests):
     print("Evaluating submission...\n")
     with open(FILENAME_CONSOLE_OUTPUT_SUBMITED, 'w', encoding="UTF-8") as file:
         sys.stdout = file
-        module_battery_of_tests.main(FILE_PATH_SUBMITED_SCRIPT)
+        module_battery_of_tests.autocorrector(FILE_PATH_SUBMITED_SCRIPT)
     sys.stdout = DEFAULT_OUTPUT
 
 
-def compare_results():
+def compare_results(module_battery_of_tests):
     """
     Compares the output of the submitted script against the output of the
     solution script.
@@ -279,21 +279,24 @@ def compare_results():
     grade = 0
     with open(FILENAME_CONSOLE_OUTPUT_SOLUTION, "r", encoding="UTF-8") as file_console_output_solution, open(FILENAME_CONSOLE_OUTPUT_SUBMITED, "r", encoding="UTF-8") as file_console_output_submission:
         for line_file_console_output_solution, line_file_console_output_submission in zip(file_console_output_solution, file_console_output_submission):
-            count += 1
-            line_file_console_output_solution = line_file_console_output_solution.replace(
-                "\n", "")
-            line_file_console_output_submission = line_file_console_output_submission.replace(
-                "\n", "")
-            print(SEPARATOR_1)
-            if line_file_console_output_solution == line_file_console_output_submission:
-                print(SPACER_1 + " RIGHT " + SPACER_1)
-                grade += 1
-            else:
-                print(SPACER_1 + " WRONG " + SPACER_1)
-                print(SPACER_2 + " EXPECTED OUTPUT " + SPACER_2)
+            if line_file_console_output_solution[0] == module_battery_of_tests.SEPARATOR:
                 print(line_file_console_output_solution)
-                print(SPACER_2 + " OBTAINED RESULT " + SPACER_2)
-                print(line_file_console_output_submission)
+            else:
+                count += 1
+                line_file_console_output_solution = line_file_console_output_solution.replace(
+                    "\n", "")
+                line_file_console_output_submission = line_file_console_output_submission.replace(
+                    "\n", "")
+                print(SEPARATOR_1)
+                if line_file_console_output_solution == line_file_console_output_submission:
+                    print(SPACER_1 + " RIGHT " + SPACER_1)
+                    grade += 1
+                else:
+                    print(SPACER_1 + " WRONG " + SPACER_1)
+                    print(SPACER_2 + " EXPECTED OUTPUT " + SPACER_2)
+                    print(line_file_console_output_solution)
+                    print(SPACER_2 + " OBTAINED RESULT " + SPACER_2)
+                    print(line_file_console_output_submission)
         print(SEPARATOR_1 + "\n")
 
     if SCORE and count != 0:
@@ -329,7 +332,7 @@ if __name__ == "__main__":
 
     evaluate_submission(battery_of_tests)
 
-    compare_results()
+    compare_results(battery_of_tests)
 
     clean_environment()
 

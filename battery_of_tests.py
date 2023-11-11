@@ -13,6 +13,10 @@ FILE_PATH_TO_YOUR_SCRIPT = "submission.py"
 ###############################################################################
 
 
+SEPARATOR = "-"
+WIDTH = 41
+
+
 def module_from_file(module_name: str, file_path: str):
     """
     Imports a module from any given path, usefull when a module is not in the
@@ -41,7 +45,7 @@ def module_from_file(module_name: str, file_path: str):
 
 
 def test_1():
-    print("Test 1")
+    print(SEPARATOR * WIDTH + " Test 1 " + SEPARATOR * WIDTH)
     spec.loader.exec_module(module)
 
 
