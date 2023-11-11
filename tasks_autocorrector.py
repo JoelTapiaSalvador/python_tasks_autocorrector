@@ -7,24 +7,73 @@ Created on Tue Nov  7 15:02:29 2023
 import os
 import sys
 import importlib
-from argparse import ArgumentParser, HelpFormatter
+from argparse import ArgumentParser, HelpFormatter, SUPPRESS
 from operator import attrgetter
 
 
-class SortingHelpFormatter(HelpFormatter):
+class CustomHelpFormatter(HelpFormatter):
     """
     A class to format the help information when using the "-h" parameter.
 
 
     Methods
     -------
-    add_arguments(actions):
+    add_arguments(actions)
+
+    add_usage(self, usage, actions, groups, prefix=None)
 
     """
 
     def add_arguments(self, actions):
+        """
+        Overights of the class HelpFormatter "add_arguments()" method that
+        sorts alphabetically the parameters.
+
+        .. warning:: This class is internal and should not be called outside of this class.
+        This documention is to guide and inform in the future in case of
+        changes needed to be made.
+
+        Parameters
+        ----------
+        actions : list
+            List of argparse actions.
+
+        Returns
+        -------
+        None.
+
+        """
         actions = sorted(actions, key=attrgetter('option_strings'))
         super().add_arguments(actions)
+
+    def add_usage(self, usage, actions, groups, prefix=None):
+        """
+        Overights of the class HelpFormatter "add_usage()" method that
+        sorts alphabetically the parameters.
+
+        .. warning:: This class is internal and should not be called outside of this class.
+        This documention is to guide and inform in the future in case of
+        changes needed to be made.
+
+        Parameters
+        ----------
+        usage : None or str
+            "usage" parameter from __init__ call of "ArgumentParser" class.
+        actions : list
+            List of argparse actions.
+        groups : list
+            DESCRIPTION.
+        prefix : None or str, optional
+            DESCRIPTION. The default is None.
+
+        Returns
+        -------
+        None.
+
+        """
+        if prefix is None:
+            prefix = 'Usage: '
+        super().add_usage(usage, actions, groups, prefix)
 
 
 class Options(ArgumentParser):
@@ -41,7 +90,7 @@ class Options(ArgumentParser):
     def __init__(self):
         # MODEL SETTINGS
         super().__init__(description="This script autoevaluates python tasks.",
-                         formatter_class=SortingHelpFormatter)
+                         add_help=False, formatter_class=CustomHelpFormatter)
         self._positionals.title = 'Positional arguments'
         self._optionals.title = 'Optional arguments'
 
@@ -57,6 +106,9 @@ class Options(ArgumentParser):
                              help='File name of the battery of tests for the' +
                              ' task.')
         # Optional arguments
+        super().add_argument('-h', '--help', action='help', default=SUPPRESS,
+                             help='Show this help message and exit.')
+
         super().add_argument('-s', '--score',
                              required=False, action="store_true",
                              default=False,
@@ -69,13 +121,13 @@ class Options(ArgumentParser):
 
         super().add_argument('-fcoso', '--file-console-ouput-solution',
                              required=False, action="store",
-                             default='output_solution.conlg',
+                             default='output_solution.conlog',
                              help='File name for the console output of the ' +
                              'execution of the solution for the task.')
 
         super().add_argument('-fcosu', '--file-console-ouput-submited',
                              required=False, action="store",
-                             default='output_submited.conlg',
+                             default='output_submited.conlog',
                              help='File name for the console output of the ' +
                              'execution of the sunmission for the task.')
 

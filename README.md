@@ -1,27 +1,24 @@
 # Python tasks autocorrector
- Autocorrector for due tasks in python.
-
-### Usage 
-    tasks_autocorrector.py [-h] file_path_submited_script file_path_solution_script file_path_script_battery_of_tests [-s] [-ce] [-fcoso FILE_CONSOLE_OUPUT_SOLUTION] [-fcosu FILE_CONSOLE_OUPUT_SUBMITED] [-w WIDTH]
-
 This script autoevaluates python tasks.
 
 ### Positional arguments
-    file_path_submited_script
-                        Submited script to be evaluated.
-    file_path_solution_script
-                        Solution script to be evaluated.
-    file_path_script_battery_of_tests
-                        File name of the battery ofvtests for the task.
+file_path_submited_script<br>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Submited script to be evaluated.<br>
+file_path_solution_script<br>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Solution script to be evaluated.<br>
+file_path_script_battery_of_tests<br>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;File name of the battery of tests for the task.<br>
 
 ### Options
-    -ce, --clean-environment
-                        Clean the environment after evaluating.
-    -fcoso FILE_CONSOLE_OUPUT_SOLUTION, --file-console-ouput-solution FILE_CONSOLE_OUPUT_SOLUTION
-                        File name for the console output of the execution of the solution for the task.
-    -fcosu FILE_CONSOLE_OUPUT_SUBMITED, --file-console-ouput-submited FILE_CONSOLE_OUPUT_SUBMITED
-                        File name for the console output of the execution of the submission for the task.
-    -h, --help          Show this help message and exit.
-    -s, --score         Show the score of the task.
-    -w WIDTH, --width WIDTH
-                        Width visual console separators.
+-ce, --clean-environment<br>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Clean the environment after evaluating.<br>
+-fcoso, --file-console-ouput-solution<br>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;File name for the console output of the execution of the solution for the task.<br>
+-fcosu, --file-console-ouput-submited<br>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;File name for the console output of the execution of the submission for the task.<br>
+-h, --help          
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Show help message and exit.<br>
+-s, --score<br>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Show the score of the task.<br>
+-w WIDTH, --width WIDTH<br>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Optional Width visual console separators.<br>
