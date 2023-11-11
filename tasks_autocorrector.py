@@ -24,7 +24,7 @@ class SortingHelpFormatter(HelpFormatter):
 
     def add_arguments(self, actions):
         actions = sorted(actions, key=attrgetter('option_strings'))
-        super(SortingHelpFormatter, self).add_arguments(actions)
+        super().add_arguments(actions)
 
 
 class Options(ArgumentParser):
@@ -42,6 +42,9 @@ class Options(ArgumentParser):
         # MODEL SETTINGS
         super().__init__(description="This script autoevaluates python tasks.",
                          formatter_class=SortingHelpFormatter)
+        self._positionals.title = 'Positional arguments'
+        self._optionals.title = 'Optional arguments'
+
         # Positional arguments
         super().add_argument('file_path_submited_script', action="store",
                              help='Submited script to be evaluated.')
@@ -68,13 +71,13 @@ class Options(ArgumentParser):
                              required=False, action="store",
                              default='output_solution.conlg',
                              help='File name for the console output of the ' +
-                             'execution of the solution for the task..')
+                             'execution of the solution for the task.')
 
         super().add_argument('-fcosu', '--file-console-ouput-submited',
                              required=False, action="store",
                              default='output_submited.conlg',
                              help='File name for the console output of the ' +
-                             'execution of the sunmission for the task..')
+                             'execution of the sunmission for the task.')
 
         super().add_argument('-w', '--width', type=int,
                              required=False, action="store",
