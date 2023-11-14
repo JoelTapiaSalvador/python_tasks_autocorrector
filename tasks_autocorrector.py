@@ -7,146 +7,229 @@ Created on Tue Nov  7 15:02:29 2023
 import os
 import sys
 import importlib
-from argparse import ArgumentParser, HelpFormatter, SUPPRESS
-from operator import attrgetter
+
+###############################################################################
+#                 WRITE HERE THE FILE PATH TO THE DIRECTORY                   #
+#              AND FILE NAME OF THE SCRIPTS AND EXECUTE THE FILE              #
+FILE_NAME_SCRIPT_BATTERY_OF_TESTS = "test_battery_of_tests.py"
+FILE_NAME_SOLUTION_SCRIPT = "test_solution.py"
+FILE_NAME_SUBMITED_SCRIPT = "test_submission.py"
+FILE_PATH_DIRECTORY_SCRIPTS = "test/"
+###############################################################################
+
+###############################################################################
+#                                 OPTIONS                                     #
+CLEAN_ENVIRONMENT = True
+FILENAME_CONSOLE_OUTPUT_SOLUTION = "output_solution.conlog"
+FILENAME_CONSOLE_OUTPUT_SUBMITED = "output_submited.conlog"
+OVERWRITE = True
+SCORE = False
+WIDTH = 36
+###############################################################################
 
 
-class CustomHelpFormatter(HelpFormatter):
+def check_environment():
     """
-    A class to format the help information when using the "-h" parameter.
+    Checks if the environment is in proper state for executing the
+    autocorrector.
 
+    Raises
+    ------
+    NotADirectoryError
+        The FILE_PATH_DIRECTORY_SCRIPTS give is not a director or
+        doesn't exists.
+    FileNotFoundError
+        Either FILE_NAME_SCRIPT_BATTERY_OF_TESTS or FILE_NAME_SOLUTION_SCRIPT
+        or FILE_NAME_SUBMITED_SCRIPT are not a file or doesn't exist in the
+        FILE_PATH_DIRECTORY_SCRIPTS.
+    FileExistsError
+        OVERWRITE is False and either FILENAME_CONSOLE_OUTPUT_SOLUTION or
+        FILENAME_CONSOLE_OUTPUT_SUBMITED exist as files in
+        FILE_PATH_DIRECTORY_SCRIPTS.
 
-    Methods
+    Returns
     -------
-    add_arguments(actions)
-
-    add_usage(self, usage, actions, groups, prefix=None)
+    None.
 
     """
-
-    def add_arguments(self, actions):
-        """
-        Overights of the class HelpFormatter "add_arguments()" method that
-        sorts alphabetically the parameters.
-
-        .. warning:: This class is internal and should not be called outside of this class.
-        This documention is to guide and inform in the future in case of
-        changes needed to be made.
-
-        Parameters
-        ----------
-        actions : list
-            List of argparse actions.
-
-        Returns
-        -------
-        None.
-
-        """
-        actions = sorted(actions, key=attrgetter('option_strings'))
-        super().add_arguments(actions)
-
-    def add_usage(self, usage, actions, groups, prefix=None):
-        """
-        Overights of the class HelpFormatter "add_usage()" method that
-        sorts alphabetically the parameters.
-
-        .. warning:: This class is internal and should not be called outside of this class.
-        This documention is to guide and inform in the future in case of
-        changes needed to be made.
-
-        Parameters
-        ----------
-        usage : None or str
-            "usage" parameter from __init__ call of "ArgumentParser" class.
-        actions : list
-            List of argparse actions.
-        groups : list
-            DESCRIPTION.
-        prefix : None or str, optional
-            DESCRIPTION. The default is None.
-
-        Returns
-        -------
-        None.
-
-        """
-        if prefix is None:
-            prefix = 'Usage: '
-        super().add_usage(usage, actions, groups, prefix)
+    print("Checking environment...\n")
+    if not os.path.isdir(FILE_PATH_DIRECTORY_SCRIPTS):
+        raise NotADirectoryError("File path is not a directoryñ.")
+    if not os.path.isfile(FILE_PATH_DIRECTORY_SCRIPTS + FILE_NAME_SCRIPT_BATTERY_OF_TESTS):
+        raise FileNotFoundError("Script battery of tests not found: " +
+                                FILE_PATH_DIRECTORY_SCRIPTS + FILE_NAME_SCRIPT_BATTERY_OF_TESTS)
+    if not os.path.isfile(FILE_PATH_DIRECTORY_SCRIPTS + FILE_NAME_SOLUTION_SCRIPT):
+        raise FileNotFoundError("Script solution not found: " +
+                                FILE_PATH_DIRECTORY_SCRIPTS + FILE_NAME_SOLUTION_SCRIPT)
+    if not os.path.isfile(FILE_PATH_DIRECTORY_SCRIPTS + FILE_NAME_SUBMITED_SCRIPT):
+        raise FileNotFoundError("Script submission not found: " +
+                                FILE_PATH_DIRECTORY_SCRIPTS + FILE_NAME_SUBMITED_SCRIPT)
+    if os.path.isfile(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SOLUTION):
+        if OVERWRITE:
+            os.remove(FILE_PATH_DIRECTORY_SCRIPTS +
+                      FILENAME_CONSOLE_OUTPUT_SOLUTION)
+        else:
+            raise FileExistsError(
+                "Console output file for solution already exists."
+                + FILE_PATH_DIRECTORY_SCRIPTS
+                + FILENAME_CONSOLE_OUTPUT_SOLUTION)
+    if os.path.isfile(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SUBMITED):
+        if OVERWRITE:
+            os.remove(FILE_PATH_DIRECTORY_SCRIPTS +
+                      FILENAME_CONSOLE_OUTPUT_SUBMITED)
+        else:
+            raise FileExistsError(
+                "Console output file for submission already exists."
+                + FILE_PATH_DIRECTORY_SCRIPTS
+                + FILENAME_CONSOLE_OUTPUT_SUBMITED)
 
 
-class Options(ArgumentParser):
+def clean_environment():
     """
-    A class to indicate the parameters options.
+    If the global variable CLEAN_ENVIRONMENT is true this functions cleans all
+    files created during the evaluation from the current environment.
 
-
-    Methods
+    Returns
     -------
-    parse():
-        Parses the arguments of the program.
+    None.
+
     """
+    if CLEAN_ENVIRONMENT:
+        print("Cleaning environment...\n")
+        os.remove(FILE_PATH_DIRECTORY_SCRIPTS +
+                  FILENAME_CONSOLE_OUTPUT_SOLUTION)
+        os.remove(FILE_PATH_DIRECTORY_SCRIPTS +
+                  FILENAME_CONSOLE_OUTPUT_SUBMITED)
+        if os.path.isdir(FILE_PATH_DIRECTORY_SCRIPTS + "__pycache__"):
+            for file_name in os.listdir(FILE_PATH_DIRECTORY_SCRIPTS
+                                        + "__pycache__"):
+                os.remove(FILE_PATH_DIRECTORY_SCRIPTS +
+                          "__pycache__/" + file_name)
+            os.rmdir(FILE_PATH_DIRECTORY_SCRIPTS + "__pycache__")
+        if os.path.isdir("__pycache__"):
+            for file_name in os.listdir("__pycache__"):
+                os.remove("__pycache__/" + file_name)
+            os.rmdir("__pycache__")
 
-    def __init__(self):
-        # MODEL SETTINGS
-        super().__init__(description="This script autoevaluates python tasks.",
-                         add_help=False, formatter_class=CustomHelpFormatter)
-        self._positionals.title = 'Positional arguments'
-        self._optionals.title = 'Optional arguments'
 
-        # Positional arguments
-        super().add_argument('file_path_submited_script', action="store",
-                             help='Submited script to be evaluated.')
+def compare_results():
+    """
+    Compares the output of the submitted script against the output of the
+    solution script.
 
-        super().add_argument('file_path_solution_script', action="store",
-                             help='Solution script to be evaluated.')
+    Returns
+    -------
+    None.
 
-        super().add_argument('file_path_script_battery_of_tests',
-                             action="store",
-                             help='File name of the battery of tests for the' +
-                             ' task.')
-        # Optional arguments
-        super().add_argument('-h', '--help', action='help', default=SUPPRESS,
-                             help='Show this help message and exit.')
+    """
+    print("Comparing results...\n")
+    count = 0
+    grade = 0
+    with open(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SOLUTION, "r", encoding="UTF-8") as file_console_output_solution, open(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SUBMITED, "r", encoding="UTF-8") as file_console_output_submission:
+        for line_file_console_output_solution, line_file_console_output_submission in zip(file_console_output_solution, file_console_output_submission):
+            if line_file_console_output_solution[0] in MODULE_BATTERY_OF_TESTS.LIST_SEPARATORS or line_file_console_output_solution[:3] in MODULE_BATTERY_OF_TESTS.LIST_COMMENTATORS:
+                print(line_file_console_output_solution)
+            else:
+                count += 1
+                line_file_console_output_solution = line_file_console_output_solution.replace(
+                    "\n", "")
+                line_file_console_output_submission = line_file_console_output_submission.replace(
+                    "\n", "")
+                print(LIST_SEPARATORS[0])
+                if line_file_console_output_solution == line_file_console_output_submission:
+                    print(LIST_SPACERS[0] + " RIGHT " + LIST_SPACERS[0])
+                    grade += 1
+                else:
+                    print(LIST_SPACERS[0] + " WRONG " + LIST_SPACERS[0])
+                    print(LIST_SPACERS[1] +
+                          " EXPECTED OUTPUT " + LIST_SPACERS[1])
+                    print(line_file_console_output_solution)
+                    print(LIST_SPACERS[1] +
+                          " OBTAINED RESULT " + LIST_SPACERS[1])
+                    print(line_file_console_output_submission)
+        print(LIST_SEPARATORS[0] + "\n")
 
-        super().add_argument('-s', '--score',
-                             required=False, action="store_true",
-                             default=False,
-                             help='Show the score of the task.')
+    if SCORE and count != 0:
+        print(LIST_SEPARATORS[1])
+        print("SCORE ==> " + str(grade) + " / " + str(count) +
+              "\nPERCENTAGE ==> " + str(grade / count * 100) + "%")
+        print(LIST_SEPARATORS[1] + "\n")
 
-        super().add_argument('-ce', '--clean-environment',
-                             required=False, action="store_true",
-                             default=True,
-                             help='Clean the environment after evaluating.')
 
-        super().add_argument('-fcoso', '--file-console-ouput-solution',
-                             required=False, action="store",
-                             default='output_solution.conlog',
-                             help='File name for the console output of the ' +
-                             'execution of the solution for the task.')
+def evaluate_solution():
+    """
+    Evaluates the battery of tests onto the solution script.
 
-        super().add_argument('-fcosu', '--file-console-ouput-submited',
-                             required=False, action="store",
-                             default='output_submited.conlog',
-                             help='File name for the console output of the ' +
-                             'execution of the sunmission for the task.')
+    Parameters
+    ----------
+    battery_of_tests : Python module
+        Module with the battery of tests. Must have a "autocorrector()"
+        function that initiates the battery of tests onto the submitted script.
 
-        super().add_argument('-w', '--width', type=int,
-                             required=False, action="store",
-                             default=36,
-                             help='Width visual console separators.')
+    Returns
+    -------
+    None.
 
-    def parse(self):
-        """
-        Parses the arguments of the program.
+    """
+    print("Evaluating solution...\n")
+    with open(FILE_PATH_DIRECTORY_SCRIPTS
+              + FILENAME_CONSOLE_OUTPUT_SOLUTION, 'w',
+              encoding="UTF-8") as file:
+        sys.stdout = file
+        MODULE_BATTERY_OF_TESTS.autocorrector(
+            FILE_PATH_DIRECTORY_SCRIPTS + FILE_NAME_SOLUTION_SCRIPT)
+    sys.stdout = DEFAULT_OUTPUT
 
-        Returns
-        -------
-        Namespace
-            Class with all parameters options as properties of the class.
 
-        """
-        return super().parse_args()
+def evaluate_submission():
+    """
+    Evaluates the battery of tests onto the submitted script.
+
+    Parameters
+    ----------
+    battery_of_tests : module
+        Module with the battery of tests. Must have a "autocorrector()"
+        function that initiates the battery of tests onto the submitted script.
+
+    Returns
+    -------
+    None.
+
+    """
+    print("Evaluating submission...\n")
+    with open(FILE_PATH_DIRECTORY_SCRIPTS
+              + FILENAME_CONSOLE_OUTPUT_SUBMITED, 'w',
+              encoding="UTF-8") as file:
+        sys.stdout = file
+        MODULE_BATTERY_OF_TESTS.autocorrector(
+            FILE_PATH_DIRECTORY_SCRIPTS + FILE_NAME_SUBMITED_SCRIPT)
+    sys.stdout = DEFAULT_OUTPUT
+
+
+def initialization():
+    """
+    Initiates the environment for the autocorrection.
+
+    Returns
+    -------
+    None.
+
+    """
+    global DEFAULT_OUTPUT
+    global LIST_SEPARATORS
+    global LIST_SPACERS
+    global MODULE_BATTERY_OF_TESTS
+
+    print("Initializing task autocorrector...\n")
+
+    DEFAULT_OUTPUT = sys.stdout
+
+    LIST_SEPARATORS = ["=" * (2 * WIDTH + 17), "*" * WIDTH]
+    LIST_SPACERS = ["#" * (WIDTH + 5), "-" * WIDTH]
+
+    MODULE_BATTERY_OF_TESTS = module_from_file(
+        "battery_of_test", FILE_PATH_DIRECTORY_SCRIPTS +
+        FILE_NAME_SCRIPT_BATTERY_OF_TESTS)
 
 
 def module_from_file(module_name: str, file_path: str):
@@ -177,162 +260,16 @@ def module_from_file(module_name: str, file_path: str):
     return module
 
 
-def initialization():
-    """
-    Initiates the environment for the autocorrection.
-
-    Returns
-    -------
-    None.
-
-    """
-    print("Initializing task autocorrector...\n")
-
-    global SCORE
-    global CLEAN_ENVIRONMENT
-    global WIDTH
-    global SEPARATOR_1
-    global SEPARATOR_2
-    global SPACER_1
-    global SPACER_2
-    global FILE_PATH_SUBMITED_SCRIPT
-    global FILE_PATH_SOLUTION_SCRIPT
-    global FILE_PATH_SCRIPT_BATTERY_OF_TESTS
-    global FILENAME_CONSOLE_OUTPUT_SOLUTION
-    global FILENAME_CONSOLE_OUTPUT_SUBMITED
-    global DEFAULT_OUTPUT
-
-    arguments = Options().parse()
-
-    SCORE = arguments.score
-    CLEAN_ENVIRONMENT = arguments.clean_environment
-    WIDTH = arguments.width
-    SEPARATOR_1 = "=" * (2 * WIDTH + 17)
-    SEPARATOR_2 = "*" * WIDTH
-    SPACER_1 = "#" * (WIDTH + 5)
-    SPACER_2 = "-" * WIDTH
-    FILE_PATH_SUBMITED_SCRIPT = arguments.file_path_submited_script
-    FILE_PATH_SOLUTION_SCRIPT = arguments.file_path_solution_script
-    FILE_PATH_SCRIPT_BATTERY_OF_TESTS = arguments.file_path_script_battery_of_tests
-    FILENAME_CONSOLE_OUTPUT_SOLUTION = arguments.file_console_ouput_solution
-    FILENAME_CONSOLE_OUTPUT_SUBMITED = arguments.file_console_ouput_submited
-
-    DEFAULT_OUTPUT = sys.stdout
-
-
-def evaluate_solution(module_battery_of_tests):
-    """
-    Evaluates the battery of tests onto the solution script.
-
-    Parameters
-    ----------
-    battery_of_tests : Python module
-        Module with the battery of tests. Must have a "autocorrector()"
-        function that initiates the battery of tests onto the submitted script.
-
-    Returns
-    -------
-    None.
-
-    """
-    print("Evaluating solution...\n")
-    with open(FILENAME_CONSOLE_OUTPUT_SOLUTION, 'w', encoding="UTF-8") as file:
-        sys.stdout = file
-        module_battery_of_tests.autocorrector(FILE_PATH_SOLUTION_SCRIPT)
-    sys.stdout = DEFAULT_OUTPUT
-
-
-def evaluate_submission(module_battery_of_tests):
-    """
-    Evaluates the battery of tests onto the submitted script.
-
-    Parameters
-    ----------
-    battery_of_tests : module
-        Module with the battery of tests. Must have a main() function that
-        initiates the battery of tests onto the submitted script.
-
-    Returns
-    -------
-    None.
-
-    """
-    print("Evaluating submission...\n")
-    with open(FILENAME_CONSOLE_OUTPUT_SUBMITED, 'w', encoding="UTF-8") as file:
-        sys.stdout = file
-        module_battery_of_tests.autocorrector(FILE_PATH_SUBMITED_SCRIPT)
-    sys.stdout = DEFAULT_OUTPUT
-
-
-def compare_results(module_battery_of_tests):
-    """
-    Compares the output of the submitted script against the output of the
-    solution script.
-
-    Returns
-    -------
-    None.
-
-    """
-    print("Comparing results...\n")
-    count = 0
-    grade = 0
-    with open(FILENAME_CONSOLE_OUTPUT_SOLUTION, "r", encoding="UTF-8") as file_console_output_solution, open(FILENAME_CONSOLE_OUTPUT_SUBMITED, "r", encoding="UTF-8") as file_console_output_submission:
-        for line_file_console_output_solution, line_file_console_output_submission in zip(file_console_output_solution, file_console_output_submission):
-            if line_file_console_output_solution[0] == module_battery_of_tests.SEPARATOR:
-                print(line_file_console_output_solution)
-            else:
-                count += 1
-                line_file_console_output_solution = line_file_console_output_solution.replace(
-                    "\n", "")
-                line_file_console_output_submission = line_file_console_output_submission.replace(
-                    "\n", "")
-                print(SEPARATOR_1)
-                if line_file_console_output_solution == line_file_console_output_submission:
-                    print(SPACER_1 + " RIGHT " + SPACER_1)
-                    grade += 1
-                else:
-                    print(SPACER_1 + " WRONG " + SPACER_1)
-                    print(SPACER_2 + " EXPECTED OUTPUT " + SPACER_2)
-                    print(line_file_console_output_solution)
-                    print(SPACER_2 + " OBTAINED RESULT " + SPACER_2)
-                    print(line_file_console_output_submission)
-        print(SEPARATOR_1 + "\n")
-
-    if SCORE and count != 0:
-        print(SEPARATOR_2)
-        print("SCORE :=> " + str(grade) + " / " + str(count) +
-              " ==> " + str(grade / count * 100) + "%")
-        print(SEPARATOR_2 + "\n")
-
-
-def clean_environment():
-    """
-    If the global variable CLEAN_ENVIRONMENT is true this functions cleans all
-    files created during the evaluation from the current environment.
-
-    Returns
-    -------
-    None.
-
-    """
-    if CLEAN_ENVIRONMENT:
-        print("Cleaning environment...\n")
-        os.remove(FILENAME_CONSOLE_OUTPUT_SOLUTION)
-        os.remove(FILENAME_CONSOLE_OUTPUT_SUBMITED)
-
-
 if __name__ == "__main__":
+    check_environment()
+
     initialization()
 
-    battery_of_tests = module_from_file(
-        "battery_of_test", FILE_PATH_SCRIPT_BATTERY_OF_TESTS)
+    evaluate_solution()
 
-    evaluate_solution(battery_of_tests)
+    evaluate_submission()
 
-    evaluate_submission(battery_of_tests)
-
-    compare_results(battery_of_tests)
+    compare_results()
 
     clean_environment()
 

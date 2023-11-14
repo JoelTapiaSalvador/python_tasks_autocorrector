@@ -8,12 +8,13 @@ import importlib
 
 
 ###############################################################################
-#        WRITE HERE THE FILE PATH TO YOUR SCRIPT AND EXECUTE THE FILE         #
-FILE_PATH_TO_YOUR_SCRIPT = "submission.py"
+#        WRITE HERE THE FILE NAME OF YOUR SCRIPT AND EXECUTE THE FILE         #
+FILE_NAME_YOUR_SCRIPT = "test_submission.py"
 ###############################################################################
 
 
-SEPARATOR = "-"
+LIST_SEPARATORS = ["-"]
+LIST_COMMENTATORS = ["==>"]
 WIDTH = 41
 
 
@@ -38,15 +39,23 @@ def module_from_file(module_name: str, file_path: str):
     None.
 
     """
-    global spec
-    global module
-    spec = importlib.util.spec_from_file_location(module_name, file_path)
-    module = importlib.util.module_from_spec(spec)
+    global SPEC
+    global MODULE
+    SPEC = importlib.util.spec_from_file_location(module_name, file_path)
+    MODULE = importlib.util.module_from_spec(SPEC)
 
 
 def test_1():
-    print(SEPARATOR * WIDTH + " Test 1 " + SEPARATOR * WIDTH)
-    spec.loader.exec_module(module)
+    """
+    Test number 1.
+
+    Returns
+    -------
+    None.
+
+    """
+    print(LIST_SEPARATORS[0] * WIDTH + " Test 1 " + LIST_SEPARATORS[0] * WIDTH)
+    SPEC.loader.exec_module(MODULE)
 
 
 def autocorrector(file_path_module: str):
@@ -69,7 +78,7 @@ def autocorrector(file_path_module: str):
 
 def main():
     """
-
+    Executes all the test functions in order.
 
     Returns
     -------
@@ -80,5 +89,5 @@ def main():
 
 
 if __name__ == "__main__":
-    module_from_file("Module from your script", FILE_PATH_TO_YOUR_SCRIPT)
+    module_from_file("Module from your script", FILE_NAME_YOUR_SCRIPT)
     main()
