@@ -13,8 +13,8 @@ FILE_NAME_YOUR_SCRIPT = "test_submission.py"
 ###############################################################################
 
 
-LIST_SEPARATORS = ["-"]
-LIST_COMMENTATORS = ["==>"]
+LIST_SEPARATORS = ["="]
+LIST_COMMENTATORS = [">>>"]
 WIDTH = 41
 
 
@@ -58,6 +58,19 @@ def test_1():
     SPEC.loader.exec_module(MODULE)
 
 
+def test_2():
+    """
+    Test number 2.
+
+    Returns
+    -------
+    None.
+
+    """
+    print(LIST_SEPARATORS[0] * WIDTH + " Test 2 " + LIST_SEPARATORS[0] * WIDTH)
+    print(LIST_COMMENTATORS[0] + " Tested")
+
+
 def autocorrector(file_path_module: str):
     """
     Function for the autocorrector to call when evaluaing scripts.
@@ -72,7 +85,7 @@ def autocorrector(file_path_module: str):
     None.
 
     """
-    module_from_file("Module from autocorrection", file_path_module)
+    module_from_file("Autocorrection", file_path_module)
     main()
 
 
@@ -86,8 +99,9 @@ def main():
 
     """
     test_1()
+    test_2()
 
 
 if __name__ == "__main__":
-    module_from_file("Module from your script", FILE_NAME_YOUR_SCRIPT)
+    module_from_file("Your script", FILE_NAME_YOUR_SCRIPT)
     main()
