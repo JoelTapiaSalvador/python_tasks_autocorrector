@@ -8,14 +8,17 @@ import importlib
 
 
 ###############################################################################
-#        WRITE HERE THE FILE NAME OF YOUR SCRIPT AND EXECUTE THE FILE         #
-FILE_NAME_YOUR_SCRIPT = "test_submission.py"
+#                   WRITE HERE THE FILE NAME OF YOUR SCRIPT                   #
+#                           AND EXECUTE THIS SCRIPT                           #
+FILE_NAME_OF_YOUR_SCRIPT = "test_submission.py"
 ###############################################################################
 
-
-LIST_SEPARATORS = ["="]
+###############################################################################
+#                                   OPTIONS                                   #
 LIST_COMMENTATORS = [">>>"]
+LIST_SEPARATORS = ["="]
 WIDTH = 41
+###############################################################################
 
 
 def module_from_file(module_name: str, file_path: str):
@@ -103,5 +106,5 @@ def main():
 
 
 if __name__ == "__main__":
-    module_from_file("Your script", FILE_NAME_YOUR_SCRIPT)
+    module_from_file("Your script", FILE_NAME_OF_YOUR_SCRIPT)
     main()
