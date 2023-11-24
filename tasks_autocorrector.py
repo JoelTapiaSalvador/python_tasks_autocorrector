@@ -4,9 +4,10 @@ Created on Tue Nov  7 15:02:29 2023
 
 @author: Joel Tapia Salvador
 """
+import importlib
+import json
 import os
 import sys
-import importlib
 
 ###############################################################################
 #                  WRITE HERE THE FILE PATH TO THE DIRECTORY                  #
@@ -26,8 +27,8 @@ FILE_NAME_SUBMITED_SCRIPT = "test_submission.py"
 CLEAN_ENVIRONMENT = True
 FILENAME_CONSOLE_OUTPUT_SOLUTION = "output_solution.conlog"
 FILENAME_CONSOLE_OUTPUT_SUBMITED = "output_submited.conlog"
+FILENAME_METADATA_BATTERY_OF_TESTS = "metadata_battery_of_tests.mtdt"
 OVERWRITE = True
-PREV_IS_SEPARATOR = True
 SCORE = True
 WIDTH = 36
 ###############################################################################
@@ -109,16 +110,28 @@ def clean_environment():
     """
     if CLEAN_ENVIRONMENT:
         print("Cleaning environment...\n")
-        os.remove(FILE_PATH_DIRECTORY_SCRIPTS +
-                  FILENAME_CONSOLE_OUTPUT_SOLUTION)
-        os.remove(FILE_PATH_DIRECTORY_SCRIPTS +
-                  FILENAME_CONSOLE_OUTPUT_SUBMITED)
+        if os.path.isfile(FILE_PATH_DIRECTORY_SCRIPTS +
+                          FILENAME_CONSOLE_OUTPUT_SOLUTION):
+            os.remove(FILE_PATH_DIRECTORY_SCRIPTS +
+                      FILENAME_CONSOLE_OUTPUT_SOLUTION)
+
+        if os.path.isfile(FILE_PATH_DIRECTORY_SCRIPTS +
+                          FILENAME_CONSOLE_OUTPUT_SUBMITED):
+            os.remove(FILE_PATH_DIRECTORY_SCRIPTS +
+                      FILENAME_CONSOLE_OUTPUT_SUBMITED)
+
+        if os.path.isfile(FILE_PATH_DIRECTORY_SCRIPTS +
+                          FILENAME_METADATA_BATTERY_OF_TESTS):
+            os.remove(FILE_PATH_DIRECTORY_SCRIPTS +
+                      FILENAME_METADATA_BATTERY_OF_TESTS)
+
         if os.path.isdir(FILE_PATH_DIRECTORY_SCRIPTS + "__pycache__"):
             for file_name in os.listdir(FILE_PATH_DIRECTORY_SCRIPTS
                                         + "__pycache__"):
                 os.remove(FILE_PATH_DIRECTORY_SCRIPTS +
                           "__pycache__/" + file_name)
             os.rmdir(FILE_PATH_DIRECTORY_SCRIPTS + "__pycache__")
+
         if os.path.isdir("__pycache__"):
             for file_name in os.listdir("__pycache__"):
                 os.remove("__pycache__/" + file_name)
@@ -136,33 +149,47 @@ def compare_results():
 
     """
     print("Comparing results...\n")
+
+    prev_is_separator = True
+
+    with open(FILENAME_METADATA_BATTERY_OF_TESTS, "r", encoding="UTF-8") \
+            as file_metadata:
+        metadata = json.load(file_metadata)
+
     count = 0
     grade = 0
-    with open(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SOLUTION, "r", encoding="UTF-8") as file_console_output_solution, open(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SUBMITED, "r", encoding="UTF-8") as file_console_output_submission:
-        for line_file_console_output_solution, line_file_console_output_submission in zip(file_console_output_solution, file_console_output_submission):
+    with open(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SOLUTION,
+              "r", encoding="UTF-8") as file_console_output_solution, \
+            open(FILE_PATH_DIRECTORY_SCRIPTS +
+                 FILENAME_CONSOLE_OUTPUT_SUBMITED, "r",
+                 encoding="UTF-8") as file_console_output_submission:
+        while True:
             line_file_console_output_solution \
-                = line_file_console_output_solution.replace("\n", "")
+                = file_console_output_solution.readline().replace("\n", "")
             line_file_console_output_submission \
-                = line_file_console_output_submission.replace("\n", "")
-            if line_file_console_output_solution[0] in MODULE_BATTERY_OF_TESTS.LIST_SEPARATORS or line_file_console_output_solution[:3] in MODULE_BATTERY_OF_TESTS.LIST_COMMENTATORS:
-                print_with_separators(line_file_console_output_solution)
+                = file_console_output_submission.readline().replace("\n", "")
+            if line_file_console_output_solution[0] in metadata["list_separators"] or line_file_console_output_solution[:3] in metadata["list_commentators"]:
+                prev_is_separator = print_with_separators(
+                    line_file_console_output_solution, prev_is_separator)
             else:
                 count += 1
 
                 if line_file_console_output_solution \
                         == line_file_console_output_submission:
-                    print_with_separators(
-                        LIST_SPACERS[0] + " RIGHT " + LIST_SPACERS[0])
+                    prev_is_separator = print_with_separators(
+                        LIST_SPACERS[0] + " RIGHT " + LIST_SPACERS[0],
+                        prev_is_separator)
                     grade += 1
                 else:
-                    print_with_separators(
+                    prev_is_separator = print_with_separators(
                         LIST_SPACERS[0] + " WRONG " + LIST_SPACERS[0] + "\n"
                         + LIST_SPACERS[1] +
                         " EXPECTED OUTPUT " + LIST_SPACERS[1] + "\n"
                         + line_file_console_output_solution + "\n"
                         + LIST_SPACERS[1] + " OBTAINED RESULT " +
                         LIST_SPACERS[1] + "\n"
-                        + line_file_console_output_submission)
+                        + line_file_console_output_submission,
+                        prev_is_separator)
         print()
 
     if SCORE and count != 0:
@@ -193,7 +220,8 @@ def evaluate_solution():
               encoding="UTF-8") as file:
         sys.stdout = file
         MODULE_BATTERY_OF_TESTS.autocorrector(
-            FILE_PATH_DIRECTORY_SCRIPTS + FILE_NAME_SOLUTION_SCRIPT)
+            FILE_PATH_DIRECTORY_SCRIPTS + FILE_NAME_SOLUTION_SCRIPT,
+            FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_METADATA_BATTERY_OF_TESTS)
     sys.stdout = DEFAULT_OUTPUT
 
 
@@ -276,32 +304,35 @@ def module_from_file(module_name: str, file_path: str):
     return module
 
 
-def print_with_separators(text):
+def print_with_separators(text, prev_is_separator):
     """
 
 
     Parameters
     ----------
     text : str
-        DESCRIPTION.
+        Text to show via console print.
 
     Returns
     -------
     None.
 
     """
-    global PREV_IS_SEPARATOR
-    if not PREV_IS_SEPARATOR:
+    if not prev_is_separator:
         print(LIST_SEPARATORS[0])
-        PREV_IS_SEPARATOR = True
+        prev_is_separator = True
     else:
-        PREV_IS_SEPARATOR = False
+        prev_is_separator = False
+
     print(text)
-    if not PREV_IS_SEPARATOR:
+
+    if not prev_is_separator:
         print(LIST_SEPARATORS[0])
-        PREV_IS_SEPARATOR = True
+        prev_is_separator = True
     else:
-        PREV_IS_SEPARATOR = False
+        prev_is_separator = False
+
+    return prev_is_separator
 
 
 if __name__ == "__main__":
