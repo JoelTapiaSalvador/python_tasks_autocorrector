@@ -24,7 +24,7 @@ FILE_NAME_SUBMITED_SCRIPT = "test_submission.py"
 
 ###############################################################################
 #                                   OPTIONS                                   #
-CLEAN_ENVIRONMENT = True
+CLEAN_ENVIRONMENT = False
 FILENAME_CONSOLE_OUTPUT_SOLUTION = "output_solution.conlog"
 FILENAME_CONSOLE_OUTPUT_SUBMITED = "output_submited.conlog"
 FILENAME_METADATA_BATTERY_OF_TESTS = "metadata_battery_of_tests.mtdt"
@@ -61,41 +61,44 @@ def check_environment():
     print("Checking environment...\n")
     if not os.path.isdir(FILE_PATH_DIRECTORY_SCRIPTS):
         raise NotADirectoryError("File path is not a directoryñ.")
-    if not os.path.isfile(FILE_PATH_DIRECTORY_SCRIPTS
-                          + FILE_NAME_SCRIPT_BATTERY_OF_TESTS):
-        raise FileNotFoundError("Script battery of tests not found: " +
-                                FILE_PATH_DIRECTORY_SCRIPTS
-                                + FILE_NAME_SCRIPT_BATTERY_OF_TESTS)
-    if not os.path.isfile(FILE_PATH_DIRECTORY_SCRIPTS
-                          + FILE_NAME_SOLUTION_SCRIPT):
-        raise FileNotFoundError("Script solution not found: " +
-                                FILE_PATH_DIRECTORY_SCRIPTS
-                                + FILE_NAME_SOLUTION_SCRIPT)
-    if not os.path.isfile(FILE_PATH_DIRECTORY_SCRIPTS
-                          + FILE_NAME_SUBMITED_SCRIPT):
-        raise FileNotFoundError("Script submission not found: " +
-                                FILE_PATH_DIRECTORY_SCRIPTS
-                                + FILE_NAME_SUBMITED_SCRIPT)
-    if os.path.isfile(FILE_PATH_DIRECTORY_SCRIPTS
-                      + FILENAME_CONSOLE_OUTPUT_SOLUTION):
+    if not os.path.isfile(
+        FILE_PATH_DIRECTORY_SCRIPTS + FILE_NAME_SCRIPT_BATTERY_OF_TESTS
+    ):
+        raise FileNotFoundError(
+            "Script battery of tests not found: "
+            + FILE_PATH_DIRECTORY_SCRIPTS
+            + FILE_NAME_SCRIPT_BATTERY_OF_TESTS
+        )
+    if not os.path.isfile(FILE_PATH_DIRECTORY_SCRIPTS + FILE_NAME_SOLUTION_SCRIPT):
+        raise FileNotFoundError(
+            "Script solution not found: "
+            + FILE_PATH_DIRECTORY_SCRIPTS
+            + FILE_NAME_SOLUTION_SCRIPT
+        )
+    if not os.path.isfile(FILE_PATH_DIRECTORY_SCRIPTS + FILE_NAME_SUBMITED_SCRIPT):
+        raise FileNotFoundError(
+            "Script submission not found: "
+            + FILE_PATH_DIRECTORY_SCRIPTS
+            + FILE_NAME_SUBMITED_SCRIPT
+        )
+    if os.path.isfile(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SOLUTION):
         if OVERWRITE:
-            os.remove(FILE_PATH_DIRECTORY_SCRIPTS +
-                      FILENAME_CONSOLE_OUTPUT_SOLUTION)
+            os.remove(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SOLUTION)
         else:
             raise FileExistsError(
                 "Console output file for solution already exists."
                 + FILE_PATH_DIRECTORY_SCRIPTS
-                + FILENAME_CONSOLE_OUTPUT_SOLUTION)
-    if os.path.isfile(FILE_PATH_DIRECTORY_SCRIPTS
-                      + FILENAME_CONSOLE_OUTPUT_SUBMITED):
+                + FILENAME_CONSOLE_OUTPUT_SOLUTION
+            )
+    if os.path.isfile(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SUBMITED):
         if OVERWRITE:
-            os.remove(FILE_PATH_DIRECTORY_SCRIPTS +
-                      FILENAME_CONSOLE_OUTPUT_SUBMITED)
+            os.remove(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SUBMITED)
         else:
             raise FileExistsError(
                 "Console output file for submission already exists."
                 + FILE_PATH_DIRECTORY_SCRIPTS
-                + FILENAME_CONSOLE_OUTPUT_SUBMITED)
+                + FILENAME_CONSOLE_OUTPUT_SUBMITED
+            )
 
 
 def clean_environment():
@@ -110,28 +113,22 @@ def clean_environment():
     """
     if CLEAN_ENVIRONMENT:
         print("Cleaning environment...\n")
-        if os.path.isfile(FILE_PATH_DIRECTORY_SCRIPTS +
-                          FILENAME_CONSOLE_OUTPUT_SOLUTION):
-            os.remove(FILE_PATH_DIRECTORY_SCRIPTS +
-                      FILENAME_CONSOLE_OUTPUT_SOLUTION)
-
-        if os.path.isfile(FILE_PATH_DIRECTORY_SCRIPTS +
-                          FILENAME_CONSOLE_OUTPUT_SUBMITED):
-            os.remove(FILE_PATH_DIRECTORY_SCRIPTS +
-                      FILENAME_CONSOLE_OUTPUT_SUBMITED)
-
-        if os.path.isfile(FILE_PATH_DIRECTORY_SCRIPTS +
-                          FILENAME_METADATA_BATTERY_OF_TESTS):
-            os.remove(FILE_PATH_DIRECTORY_SCRIPTS +
-                      FILENAME_METADATA_BATTERY_OF_TESTS)
-
+        if os.path.isfile(
+            FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SOLUTION
+        ):
+            os.remove(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SOLUTION)
+        if os.path.isfile(
+            FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SUBMITED
+        ):
+            os.remove(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SUBMITED)
+        if os.path.isfile(
+            FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_METADATA_BATTERY_OF_TESTS
+        ):
+            os.remove(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_METADATA_BATTERY_OF_TESTS)
         if os.path.isdir(FILE_PATH_DIRECTORY_SCRIPTS + "__pycache__"):
-            for file_name in os.listdir(FILE_PATH_DIRECTORY_SCRIPTS
-                                        + "__pycache__"):
-                os.remove(FILE_PATH_DIRECTORY_SCRIPTS +
-                          "__pycache__/" + file_name)
+            for file_name in os.listdir(FILE_PATH_DIRECTORY_SCRIPTS + "__pycache__"):
+                os.remove(FILE_PATH_DIRECTORY_SCRIPTS + "__pycache__/" + file_name)
             os.rmdir(FILE_PATH_DIRECTORY_SCRIPTS + "__pycache__")
-
         if os.path.isdir("__pycache__"):
             for file_name in os.listdir("__pycache__"):
                 os.remove("__pycache__/" + file_name)
@@ -152,50 +149,87 @@ def compare_results():
 
     prev_is_separator = True
 
-    with open(FILENAME_METADATA_BATTERY_OF_TESTS, "r", encoding="UTF-8") \
-            as file_metadata:
+    with open(
+        FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_METADATA_BATTERY_OF_TESTS,
+        "r",
+        encoding="UTF-8",
+    ) as file_metadata:
         metadata = json.load(file_metadata)
-
     count = 0
     grade = 0
-    with open(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SOLUTION,
-              "r", encoding="UTF-8") as file_console_output_solution, \
-            open(FILE_PATH_DIRECTORY_SCRIPTS +
-                 FILENAME_CONSOLE_OUTPUT_SUBMITED, "r",
-                 encoding="UTF-8") as file_console_output_submission:
-        while True:
-            line_file_console_output_solution \
-                = file_console_output_solution.readline().replace("\n", "")
-            line_file_console_output_submission \
-                = file_console_output_submission.readline().replace("\n", "")
-            if line_file_console_output_solution[0] in metadata["list_separators"] or line_file_console_output_solution[:3] in metadata["list_commentators"]:
+    line_file_console_output_solution = None
+    line_file_console_output_submission = None
+
+    with open(
+        FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SOLUTION,
+        "r",
+        encoding="UTF-8",
+    ) as file_console_output_solution, open(
+        FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SUBMITED,
+        "r",
+        encoding="UTF-8",
+    ) as file_console_output_submission:
+        while (
+            line_file_console_output_solution != ""
+            and line_file_console_output_submission != ""
+        ):
+            line_file_console_output_solution = file_console_output_solution.readline().replace(
+                "\n", ""
+            )
+            line_file_console_output_submission = file_console_output_submission.readline().replace(
+                "\n", ""
+            )
+
+            if line_file_console_output_solution != "" and (
+                line_file_console_output_solution[0] in metadata["list_separators"]
+                or line_file_console_output_solution[:3]
+                in metadata["list_commentators"]
+            ):
                 prev_is_separator = print_with_separators(
-                    line_file_console_output_solution, prev_is_separator)
+                    line_file_console_output_solution, prev_is_separator
+                )
             else:
                 count += 1
 
-                if line_file_console_output_solution \
-                        == line_file_console_output_submission:
+                if (
+                    line_file_console_output_solution
+                    == line_file_console_output_submission
+                ):
                     prev_is_separator = print_with_separators(
-                        LIST_SPACERS[0] + " RIGHT " + LIST_SPACERS[0],
-                        prev_is_separator)
+                        LIST_SPACERS[0] + " RIGHT " + LIST_SPACERS[0], prev_is_separator
+                    )
                     grade += 1
                 else:
                     prev_is_separator = print_with_separators(
-                        LIST_SPACERS[0] + " WRONG " + LIST_SPACERS[0] + "\n"
-                        + LIST_SPACERS[1] +
-                        " EXPECTED OUTPUT " + LIST_SPACERS[1] + "\n"
-                        + line_file_console_output_solution + "\n"
-                        + LIST_SPACERS[1] + " OBTAINED RESULT " +
-                        LIST_SPACERS[1] + "\n"
+                        LIST_SPACERS[0]
+                        + " WRONG "
+                        + LIST_SPACERS[0]
+                        + "\n"
+                        + LIST_SPACERS[1]
+                        + " EXPECTED OUTPUT "
+                        + LIST_SPACERS[1]
+                        + "\n"
+                        + line_file_console_output_solution
+                        + "\n"
+                        + LIST_SPACERS[1]
+                        + " OBTAINED RESULT "
+                        + LIST_SPACERS[1]
+                        + "\n"
                         + line_file_console_output_submission,
-                        prev_is_separator)
+                        prev_is_separator,
+                    )
         print()
-
     if SCORE and count != 0:
         print(LIST_SEPARATORS[1])
-        print("SCORE ==> " + str(grade) + " / " + str(count) +
-              "\nPERCENTAGE ==> " + str(grade / count * 100) + "%")
+        print(
+            "SCORE ==> "
+            + str(grade)
+            + " / "
+            + str(count)
+            + "\nPERCENTAGE ==> "
+            + str(grade / count * 100)
+            + "%"
+        )
         print(LIST_SEPARATORS[1] + "\n")
 
 
@@ -215,13 +249,16 @@ def evaluate_solution():
 
     """
     print("Evaluating solution...\n")
-    with open(FILE_PATH_DIRECTORY_SCRIPTS
-              + FILENAME_CONSOLE_OUTPUT_SOLUTION, 'w',
-              encoding="UTF-8") as file:
+    with open(
+        FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SOLUTION,
+        "w",
+        encoding="UTF-8",
+    ) as file:
         sys.stdout = file
         MODULE_BATTERY_OF_TESTS.autocorrector(
             FILE_PATH_DIRECTORY_SCRIPTS + FILE_NAME_SOLUTION_SCRIPT,
-            FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_METADATA_BATTERY_OF_TESTS)
+            FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_METADATA_BATTERY_OF_TESTS,
+        )
     sys.stdout = DEFAULT_OUTPUT
 
 
@@ -241,12 +278,15 @@ def evaluate_submission():
 
     """
     print("Evaluating submission...\n")
-    with open(FILE_PATH_DIRECTORY_SCRIPTS
-              + FILENAME_CONSOLE_OUTPUT_SUBMITED, 'w',
-              encoding="UTF-8") as file:
+    with open(
+        FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SUBMITED,
+        "w",
+        encoding="UTF-8",
+    ) as file:
         sys.stdout = file
         MODULE_BATTERY_OF_TESTS.autocorrector(
-            FILE_PATH_DIRECTORY_SCRIPTS + FILE_NAME_SUBMITED_SCRIPT)
+            FILE_PATH_DIRECTORY_SCRIPTS + FILE_NAME_SUBMITED_SCRIPT
+        )
     sys.stdout = DEFAULT_OUTPUT
 
 
@@ -272,8 +312,9 @@ def initialization():
     LIST_SPACERS = ["#" * (WIDTH + 5), "-" * WIDTH]
 
     MODULE_BATTERY_OF_TESTS = module_from_file(
-        "battery_of_test", FILE_PATH_DIRECTORY_SCRIPTS +
-        FILE_NAME_SCRIPT_BATTERY_OF_TESTS)
+        "battery_of_test",
+        FILE_PATH_DIRECTORY_SCRIPTS + FILE_NAME_SCRIPT_BATTERY_OF_TESTS,
+    )
 
 
 def module_from_file(module_name: str, file_path: str):
@@ -323,7 +364,6 @@ def print_with_separators(text, prev_is_separator):
         prev_is_separator = True
     else:
         prev_is_separator = False
-
     print(text)
 
     if not prev_is_separator:
@@ -331,7 +371,6 @@ def print_with_separators(text, prev_is_separator):
         prev_is_separator = True
     else:
         prev_is_separator = False
-
     return prev_is_separator
 
 

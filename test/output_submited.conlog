@@ -1,0 +1,18 @@
+========================================= Test 1 =========================================
+0
+1
+2
+3
+4
+========================================= Test 2 =========================================
+>>> Tested
+========================================= Test 5 =========================================
+Traceback (most recent call last):
+  File "test/test_battery_of_tests.py", line 228, in main
+    test(internal_spec, internal_module)
+  File "test/test_battery_of_tests.py", line 170, in test_5
+    internal_module.testOtherException()
+  File "test/test_submission.py", line 20, in testOtherException
+    raise UserWarning("This is a warning")
+UserWarning: This is a warning
+
