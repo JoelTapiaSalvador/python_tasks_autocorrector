@@ -171,8 +171,9 @@ def compare_results():
     ) as file_console_output_submission:
         while (
             line_file_console_output_solution != ""
-            and line_file_console_output_submission != ""
+            or line_file_console_output_submission != ""
         ):
+            text = ""
             line_file_console_output_solution = file_console_output_solution.readline().replace(
                 "\n", ""
             )
@@ -200,6 +201,22 @@ def compare_results():
                     )
                     grade += 1
                 else:
+                    if (
+                        line_file_console_output_solution != ""
+                        and line_file_console_output_solution[0]
+                        not in metadata["list_separators"]
+                        and line_file_console_output_solution
+                        not in metadata["list_commentators"]
+                    ):
+                        text += LIST_SPACERS[0]
+                        +" WRONG "
+                        +LIST_SPACERS[0]
+                        +"\n"
+                        +LIST_SPACERS[1]
+                        +" EXPECTED OUTPUT "
+                        +LIST_SPACERS[1]
+                        +"\n"
+                        +line_file_console_output_solution
                     prev_is_separator = print_with_separators(
                         LIST_SPACERS[0]
                         + " WRONG "

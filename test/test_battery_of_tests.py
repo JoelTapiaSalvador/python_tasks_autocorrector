@@ -193,8 +193,9 @@ def autocorrector(file_path_module: str, file_path_metadata: str = ""):
 
     if file_path_metadata != "":
         with open(file_path_metadata, "w", encoding="UTF-8") as file_metadata:
-            json.dump(__metadata, file_metadata,
-                      skipkeys=True, indent=4, sort_keys=True)
+            json.dump(
+                __metadata, file_metadata, skipkeys=True, indent=4, sort_keys=True
+            )
 
 
 def main(internal_spec, internal_module) -> dict:
@@ -219,16 +220,19 @@ def main(internal_spec, internal_module) -> dict:
 
     tests = (test_1, test_2, test_5)
 
-    __metadata = {"number_tests": len(tests),
-                  "list_commentators": LIST_COMMENTATORS,
-                  "list_separators": LIST_SEPARATORS}
+    __metadata = {
+        "number_tests": len(tests),
+        "list_commentators": LIST_COMMENTATORS,
+        "list_length_commentators": [len(element) for element in LIST_COMMENTATORS],
+        "list_separators": LIST_SEPARATORS,
+        "list_length_separators": [len(element) for element in LIST_SEPARATORS],
+    }
 
     for test in tests:
         try:
             test(internal_spec, internal_module)
         except Exception:  # pylint: disable=broad-except
             print(traceback.format_exc())
-
     return __metadata
 
 
