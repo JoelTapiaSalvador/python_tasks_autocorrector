@@ -83,7 +83,8 @@ def check_environment():
         )
     if os.path.isfile(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SOLUTION):
         if OVERWRITE:
-            os.remove(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SOLUTION)
+            os.remove(FILE_PATH_DIRECTORY_SCRIPTS +
+                      FILENAME_CONSOLE_OUTPUT_SOLUTION)
         else:
             raise FileExistsError(
                 "Console output file for solution already exists."
@@ -92,7 +93,8 @@ def check_environment():
             )
     if os.path.isfile(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SUBMITED):
         if OVERWRITE:
-            os.remove(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SUBMITED)
+            os.remove(FILE_PATH_DIRECTORY_SCRIPTS +
+                      FILENAME_CONSOLE_OUTPUT_SUBMITED)
         else:
             raise FileExistsError(
                 "Console output file for submission already exists."
@@ -116,18 +118,22 @@ def clean_environment():
         if os.path.isfile(
             FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SOLUTION
         ):
-            os.remove(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SOLUTION)
+            os.remove(FILE_PATH_DIRECTORY_SCRIPTS +
+                      FILENAME_CONSOLE_OUTPUT_SOLUTION)
         if os.path.isfile(
             FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SUBMITED
         ):
-            os.remove(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SUBMITED)
+            os.remove(FILE_PATH_DIRECTORY_SCRIPTS +
+                      FILENAME_CONSOLE_OUTPUT_SUBMITED)
         if os.path.isfile(
             FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_METADATA_BATTERY_OF_TESTS
         ):
-            os.remove(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_METADATA_BATTERY_OF_TESTS)
+            os.remove(FILE_PATH_DIRECTORY_SCRIPTS +
+                      FILENAME_METADATA_BATTERY_OF_TESTS)
         if os.path.isdir(FILE_PATH_DIRECTORY_SCRIPTS + "__pycache__"):
             for file_name in os.listdir(FILE_PATH_DIRECTORY_SCRIPTS + "__pycache__"):
-                os.remove(FILE_PATH_DIRECTORY_SCRIPTS + "__pycache__/" + file_name)
+                os.remove(FILE_PATH_DIRECTORY_SCRIPTS +
+                          "__pycache__/" + file_name)
             os.rmdir(FILE_PATH_DIRECTORY_SCRIPTS + "__pycache__")
         if os.path.isdir("__pycache__"):
             for file_name in os.listdir("__pycache__"):
@@ -196,11 +202,13 @@ def compare_results():
                     line_file_console_output_solution
                     == line_file_console_output_submission
                 ):
-                    prev_is_separator = print_with_separators(
-                        LIST_SPACERS[0] + " RIGHT " + LIST_SPACERS[0], prev_is_separator
-                    )
+                    text += LIST_SPACERS[0] + " RIGHT " + LIST_SPACERS[0]
                     grade += 1
                 else:
+                    text += (LIST_SPACERS[0]
+                             + " WRONG "
+                             + LIST_SPACERS[0]
+                             + "\n")
                     if (
                         line_file_console_output_solution != ""
                         and line_file_console_output_solution[0]
@@ -208,33 +216,28 @@ def compare_results():
                         and line_file_console_output_solution
                         not in metadata["list_commentators"]
                     ):
-                        text += LIST_SPACERS[0]
-                        +" WRONG "
-                        +LIST_SPACERS[0]
-                        +"\n"
-                        +LIST_SPACERS[1]
-                        +" EXPECTED OUTPUT "
-                        +LIST_SPACERS[1]
-                        +"\n"
-                        +line_file_console_output_solution
-                    prev_is_separator = print_with_separators(
-                        LIST_SPACERS[0]
-                        + " WRONG "
-                        + LIST_SPACERS[0]
-                        + "\n"
-                        + LIST_SPACERS[1]
-                        + " EXPECTED OUTPUT "
-                        + LIST_SPACERS[1]
-                        + "\n"
-                        + line_file_console_output_solution
-                        + "\n"
-                        + LIST_SPACERS[1]
-                        + " OBTAINED RESULT "
-                        + LIST_SPACERS[1]
-                        + "\n"
-                        + line_file_console_output_submission,
-                        prev_is_separator,
-                    )
+                        text += (LIST_SPACERS[1]
+                                 + " EXPECTED OUTPUT "
+                                 + LIST_SPACERS[1]
+                                 + "\n"
+                                 + line_file_console_output_solution
+                                 + "\n")
+
+                    if (
+                        line_file_console_output_submission != ""
+                        and line_file_console_output_submission[0]
+                        not in metadata["list_separators"]
+                        and line_file_console_output_submission
+                        not in metadata["list_commentators"]
+                    ):
+                        text += (LIST_SPACERS[1]
+                                 + " OBTAINED RESULT "
+                                 + LIST_SPACERS[1]
+                                 + "\n"
+                                 + line_file_console_output_submission)
+
+                prev_is_separator = print_with_separators(
+                    text, prev_is_separator)
         print()
     if SCORE and count != 0:
         print(LIST_SEPARATORS[1])
@@ -326,7 +329,7 @@ def initialization():
     DEFAULT_OUTPUT = sys.stdout
 
     LIST_SEPARATORS = ["-" * (2 * WIDTH + 17), "*" * WIDTH]
-    LIST_SPACERS = ["#" * (WIDTH + 5), "-" * WIDTH]
+    LIST_SPACERS = ["#" * (WIDTH + 5), " " * WIDTH]
 
     MODULE_BATTERY_OF_TESTS = module_from_file(
         "battery_of_test",

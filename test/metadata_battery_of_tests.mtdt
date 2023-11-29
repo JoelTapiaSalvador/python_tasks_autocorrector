@@ -2,6 +2,12 @@
     "list_commentators": [
         ">>>"
     ],
+    "list_length_commentators": [
+        3
+    ],
+    "list_length_separators": [
+        1
+    ],
     "list_separators": [
         "="
     ],
