@@ -220,12 +220,16 @@ def main(internal_spec, internal_module) -> dict:
 
     tests = (test_1, test_2, test_5)
 
+    list_commentators = sorted(LIST_COMMENTATORS, key=(len), reverse=True)
+
+    list_separators = sorted(LIST_SEPARATORS, key=(len), reverse=True)
+
     __metadata = {
         "number_tests": len(tests),
-        "list_commentators": LIST_COMMENTATORS,
-        "list_length_commentators": [len(element) for element in LIST_COMMENTATORS],
-        "list_separators": LIST_SEPARATORS,
-        "list_length_separators": [len(element) for element in LIST_SEPARATORS],
+        "list_commentators": list_commentators,
+        "list_length_commentators": [len(element) for element in list_commentators],
+        "list_separators": list_separators,
+        "list_length_separators": [len(element) for element in list_separators],
     }
 
     for test in tests:
