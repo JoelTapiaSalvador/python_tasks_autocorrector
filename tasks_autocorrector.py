@@ -60,7 +60,7 @@ def check_environment():
     """
     print("Checking environment...\n")
     if not os.path.isdir(FILE_PATH_DIRECTORY_SCRIPTS):
-        raise NotADirectoryError("File path is not a directoryñ.")
+        raise NotADirectoryError("File path is not a directory.")
     if not os.path.isfile(
         FILE_PATH_DIRECTORY_SCRIPTS + FILE_NAME_SCRIPT_BATTERY_OF_TESTS
     ):
@@ -83,8 +83,7 @@ def check_environment():
         )
     if os.path.isfile(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SOLUTION):
         if OVERWRITE:
-            os.remove(FILE_PATH_DIRECTORY_SCRIPTS +
-                      FILENAME_CONSOLE_OUTPUT_SOLUTION)
+            os.remove(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SOLUTION)
         else:
             raise FileExistsError(
                 "Console output file for solution already exists."
@@ -93,14 +92,56 @@ def check_environment():
             )
     if os.path.isfile(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SUBMITED):
         if OVERWRITE:
-            os.remove(FILE_PATH_DIRECTORY_SCRIPTS +
-                      FILENAME_CONSOLE_OUTPUT_SUBMITED)
+            os.remove(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SUBMITED)
         else:
             raise FileExistsError(
                 "Console output file for submission already exists."
                 + FILE_PATH_DIRECTORY_SCRIPTS
                 + FILENAME_CONSOLE_OUTPUT_SUBMITED
             )
+
+
+def check_special_text(text, list_special_texts, list_length_special_texts):
+    """
+    Funtions returns True if one of the strings of list_special_texts is found
+    in the first given positions by list_length_special_texts in the passed
+    text.
+
+    Parameters
+    ----------
+    text : String
+        Given text that is compared to know if starts by one of the strings
+        given.
+    list_special_texts : List[String]
+        List of string, ordered from biggest length to lowest length.
+    list_length_special_texts : List[Interger]
+        List of integers that represent the length of each string of
+        list_special_texts orderes as list_special_textsis and must have the
+        same length as list_special_texts.
+
+    Raises
+    ------
+    ValueError
+        Raised when both the list list_special_texts and
+        list_length_special_texts do not have the same length.
+
+    Returns
+    -------
+    Bool
+        Return True of False if the text starts with one of the given strings.
+
+    """
+    if len(list_special_texts) != list_special_texts:
+        raise ValueError(
+            "List list_special_texts and list_length_special_texts do not have"
+            + " the same lengths."
+        )
+    for special_text, length_special_text in zip(
+        list_special_texts, list_length_special_texts
+    ):
+        if text[:length_special_text] == special_text:
+            return True
+    return False
 
 
 def clean_environment():
@@ -118,22 +159,18 @@ def clean_environment():
         if os.path.isfile(
             FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SOLUTION
         ):
-            os.remove(FILE_PATH_DIRECTORY_SCRIPTS +
-                      FILENAME_CONSOLE_OUTPUT_SOLUTION)
+            os.remove(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SOLUTION)
         if os.path.isfile(
             FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SUBMITED
         ):
-            os.remove(FILE_PATH_DIRECTORY_SCRIPTS +
-                      FILENAME_CONSOLE_OUTPUT_SUBMITED)
+            os.remove(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SUBMITED)
         if os.path.isfile(
             FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_METADATA_BATTERY_OF_TESTS
         ):
-            os.remove(FILE_PATH_DIRECTORY_SCRIPTS +
-                      FILENAME_METADATA_BATTERY_OF_TESTS)
+            os.remove(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_METADATA_BATTERY_OF_TESTS)
         if os.path.isdir(FILE_PATH_DIRECTORY_SCRIPTS + "__pycache__"):
             for file_name in os.listdir(FILE_PATH_DIRECTORY_SCRIPTS + "__pycache__"):
-                os.remove(FILE_PATH_DIRECTORY_SCRIPTS +
-                          "__pycache__/" + file_name)
+                os.remove(FILE_PATH_DIRECTORY_SCRIPTS + "__pycache__/" + file_name)
             os.rmdir(FILE_PATH_DIRECTORY_SCRIPTS + "__pycache__")
         if os.path.isdir("__pycache__"):
             for file_name in os.listdir("__pycache__"):
@@ -205,10 +242,7 @@ def compare_results():
                     text += LIST_SPACERS[0] + " RIGHT " + LIST_SPACERS[0]
                     grade += 1
                 else:
-                    text += (LIST_SPACERS[0]
-                             + " WRONG "
-                             + LIST_SPACERS[0]
-                             + "\n")
+                    text += LIST_SPACERS[0] + " WRONG " + LIST_SPACERS[0] + "\n"
                     if (
                         line_file_console_output_solution != ""
                         and line_file_console_output_solution[0]
@@ -216,13 +250,14 @@ def compare_results():
                         and line_file_console_output_solution
                         not in metadata["list_commentators"]
                     ):
-                        text += (LIST_SPACERS[1]
-                                 + " EXPECTED OUTPUT "
-                                 + LIST_SPACERS[1]
-                                 + "\n"
-                                 + line_file_console_output_solution
-                                 + "\n")
-
+                        text += (
+                            LIST_SPACERS[1]
+                            + " EXPECTED OUTPUT "
+                            + LIST_SPACERS[1]
+                            + "\n"
+                            + line_file_console_output_solution
+                            + "\n"
+                        )
                     if (
                         line_file_console_output_submission != ""
                         and line_file_console_output_submission[0]
@@ -230,14 +265,14 @@ def compare_results():
                         and line_file_console_output_submission
                         not in metadata["list_commentators"]
                     ):
-                        text += (LIST_SPACERS[1]
-                                 + " OBTAINED RESULT "
-                                 + LIST_SPACERS[1]
-                                 + "\n"
-                                 + line_file_console_output_submission)
-
-                prev_is_separator = print_with_separators(
-                    text, prev_is_separator)
+                        text += (
+                            LIST_SPACERS[1]
+                            + " OBTAINED RESULT "
+                            + LIST_SPACERS[1]
+                            + "\n"
+                            + line_file_console_output_submission
+                        )
+                prev_is_separator = print_with_separators(text, prev_is_separator)
         print()
     if SCORE and count != 0:
         print(LIST_SEPARATORS[1])
