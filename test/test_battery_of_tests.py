@@ -18,6 +18,7 @@ FILE_NAME_OF_YOUR_SCRIPT = "test_submission.py"
 ###############################################################################
 #                                   OPTIONS                                   #
 LIST_COMMENTATORS = [">>>"]
+LIST_CRITICAL = ["!"]
 LIST_SEPARATORS = ["="]
 WIDTH = 41
 ###############################################################################
@@ -222,12 +223,16 @@ def main(internal_spec, internal_module) -> dict:
 
     list_commentators = sorted(LIST_COMMENTATORS, key=(len), reverse=True)
 
+    list_critical = sorted(LIST_CRITICAL, key=(len), reverse=True)
+
     list_separators = sorted(LIST_SEPARATORS, key=(len), reverse=True)
 
     __metadata = {
         "number_tests": len(tests),
         "list_commentators": list_commentators,
         "list_length_commentators": [len(element) for element in list_commentators],
+        "list_critical": list_critical,
+        "list_length_critical": [len(element) for element in list_critical],
         "list_separators": list_separators,
         "list_length_separators": [len(element) for element in list_separators],
     }
@@ -236,7 +241,11 @@ def main(internal_spec, internal_module) -> dict:
         try:
             test(internal_spec, internal_module)
         except Exception:  # pylint: disable=broad-except
+            print(
+                list_critical[0] * WIDTH + " ERRORS " + list_critical[0] * WIDTH + "\n"
+            )
             print(traceback.format_exc())
+            print(list_critical[0] * (2 * WIDTH + 8))
     return __metadata
 
 

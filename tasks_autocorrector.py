@@ -200,8 +200,6 @@ def compare_results():
         metadata = json.load(file_metadata)
     count = 0
     grade = 0
-    line_file_console_output_solution = None
-    line_file_console_output_submission = None
 
     with open(
         FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SOLUTION,
@@ -212,17 +210,104 @@ def compare_results():
         "r",
         encoding="UTF-8",
     ) as file_console_output_submission:
+
+        line_file_console_output_solution = file_console_output_solution.readline()
+        line_file_console_output_submission = file_console_output_submission.readline()
+
         while (
             line_file_console_output_solution != ""
             or line_file_console_output_submission != ""
         ):
             text = ""
-            line_file_console_output_solution = file_console_output_solution.readline().replace(
+            line_file_console_output_solution = line_file_console_output_solution.replace(
                 "\n", ""
             )
-            line_file_console_output_submission = file_console_output_submission.readline().replace(
+            line_file_console_output_submission = line_file_console_output_submission.replace(
                 "\n", ""
             )
+
+            if line_file_console_output_solution == line_file_console_output_submission:
+                if check_special_text(
+                    line_file_console_output_solution,
+                    metadata["list_commentators"],
+                    metadata["list_length_commentators"],
+                ) or check_special_text(
+                    line_file_console_output_solution,
+                    metadata["list_separators"],
+                    metadata["list_length_separators"],
+                ):
+                    text += line_file_console_output_solution
+                else:
+                    grade += 1
+                    text += LIST_SPACERS[0] + " RIGHT " + LIST_SPACERS[0]
+                line_file_console_output_solution = (
+                    file_console_output_solution.readline()
+                )
+                line_file_console_output_submission = (
+                    file_console_output_submission.readline()
+                )
+            else:
+                if check_special_text(
+                    line_file_console_output_submission,
+                    metadata["list_critical"],
+                    metadata["list_length_critical"],
+                ):
+                    print(line_file_console_output_submission)
+                    while not check_special_text(
+                        line_file_console_output_submission,
+                        metadata["list_critical"],
+                        metadata["list_length_critical"],
+                    ):
+                        line_file_console_output_submission = file_console_output_submission.readline().replace(
+                            "\n", ""
+                        )
+                        print(line_file_console_output_submission)
+                    line_file_console_output_submission = file_console_output_submission.readline().replace(
+                        "\n", ""
+                    )
+                else:
+                    if not check_special_text(
+                        line_file_console_output_solution,
+                        metadata["list_commentators"],
+                        metadata["list_length_commentators"],
+                    ) and not check_special_text(
+                        line_file_console_output_solution,
+                        metadata["list_separators"],
+                        metadata["list_length_separators"],
+                    ):
+                        text += (
+                            LIST_SPACERS[1]
+                            + " EXPECTED OUTPUT "
+                            + LIST_SPACERS[1]
+                            + "\n"
+                            + line_file_console_output_solution
+                            + "\n"
+                        )
+
+                        line_file_console_output_solution = (
+                            file_console_output_solution.readline()
+                        )
+                    if not check_special_text(
+                        line_file_console_output_submission,
+                        metadata["list_commentators"],
+                        metadata["list_length_commentators"],
+                    ) and not check_special_text(
+                        line_file_console_output_submission,
+                        metadata["list_separators"],
+                        metadata["list_length_separators"],
+                    ):
+                        text += (
+                            LIST_SPACERS[1]
+                            + " OBTAINED RESULT "
+                            + LIST_SPACERS[1]
+                            + "\n"
+                            + line_file_console_output_submission
+                        )
+
+                        line_file_console_output_submission = (
+                            file_console_output_submission.readline()
+                        )
+            """
 
             if line_file_console_output_solution != "" and (
                 line_file_console_output_solution[0] in metadata["list_separators"]
@@ -272,7 +357,8 @@ def compare_results():
                             + "\n"
                             + line_file_console_output_submission
                         )
-                prev_is_separator = print_with_separators(text, prev_is_separator)
+                """
+            prev_is_separator = print_with_separators(text, prev_is_separator)
         print()
     if SCORE and count != 0:
         print(LIST_SEPARATORS[1])
