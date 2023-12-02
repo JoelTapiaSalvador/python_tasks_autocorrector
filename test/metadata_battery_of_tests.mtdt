@@ -2,8 +2,14 @@
     "list_commentators": [
         ">>>"
     ],
+    "list_critical": [
+        "!"
+    ],
     "list_length_commentators": [
         3
+    ],
+    "list_length_critical": [
+        1
     ],
     "list_length_separators": [
         1

@@ -83,7 +83,8 @@ def check_environment():
         )
     if os.path.isfile(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SOLUTION):
         if OVERWRITE:
-            os.remove(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SOLUTION)
+            os.remove(FILE_PATH_DIRECTORY_SCRIPTS +
+                      FILENAME_CONSOLE_OUTPUT_SOLUTION)
         else:
             raise FileExistsError(
                 "Console output file for solution already exists."
@@ -92,7 +93,8 @@ def check_environment():
             )
     if os.path.isfile(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SUBMITED):
         if OVERWRITE:
-            os.remove(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SUBMITED)
+            os.remove(FILE_PATH_DIRECTORY_SCRIPTS +
+                      FILENAME_CONSOLE_OUTPUT_SUBMITED)
         else:
             raise FileExistsError(
                 "Console output file for submission already exists."
@@ -131,9 +133,12 @@ def check_special_text(text, list_special_texts, list_length_special_texts):
         Return True of False if the text starts with one of the given strings.
 
     """
-    if len(list_special_texts) != list_special_texts:
+    if len(list_special_texts) != len(list_length_special_texts):
         raise ValueError(
-            "List list_special_texts and list_length_special_texts do not have"
+            "List list_special_texts (length = " + str(
+                len(list_special_texts)) +
+            ") and list_length_special_texts (" + str(
+                len(list_length_special_texts)) + ") do not have"
             + " the same lengths."
         )
     for special_text, length_special_text in zip(
@@ -159,18 +164,22 @@ def clean_environment():
         if os.path.isfile(
             FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SOLUTION
         ):
-            os.remove(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SOLUTION)
+            os.remove(FILE_PATH_DIRECTORY_SCRIPTS +
+                      FILENAME_CONSOLE_OUTPUT_SOLUTION)
         if os.path.isfile(
             FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SUBMITED
         ):
-            os.remove(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SUBMITED)
+            os.remove(FILE_PATH_DIRECTORY_SCRIPTS +
+                      FILENAME_CONSOLE_OUTPUT_SUBMITED)
         if os.path.isfile(
             FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_METADATA_BATTERY_OF_TESTS
         ):
-            os.remove(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_METADATA_BATTERY_OF_TESTS)
+            os.remove(FILE_PATH_DIRECTORY_SCRIPTS +
+                      FILENAME_METADATA_BATTERY_OF_TESTS)
         if os.path.isdir(FILE_PATH_DIRECTORY_SCRIPTS + "__pycache__"):
             for file_name in os.listdir(FILE_PATH_DIRECTORY_SCRIPTS + "__pycache__"):
-                os.remove(FILE_PATH_DIRECTORY_SCRIPTS + "__pycache__/" + file_name)
+                os.remove(FILE_PATH_DIRECTORY_SCRIPTS +
+                          "__pycache__/" + file_name)
             os.rmdir(FILE_PATH_DIRECTORY_SCRIPTS + "__pycache__")
         if os.path.isdir("__pycache__"):
             for file_name in os.listdir("__pycache__"):
@@ -198,6 +207,7 @@ def compare_results():
         encoding="UTF-8",
     ) as file_metadata:
         metadata = json.load(file_metadata)
+
     count = 0
     grade = 0
 
@@ -238,6 +248,7 @@ def compare_results():
                 ):
                     text += line_file_console_output_solution
                 else:
+                    count += 1
                     grade += 1
                     text += LIST_SPACERS[0] + " RIGHT " + LIST_SPACERS[0]
                 line_file_console_output_solution = (
@@ -253,15 +264,21 @@ def compare_results():
                     metadata["list_length_critical"],
                 ):
                     print(line_file_console_output_submission)
+                    line_file_console_output_submission = file_console_output_submission.readline().replace(
+                        "\n", ""
+                    )
                     while not check_special_text(
                         line_file_console_output_submission,
                         metadata["list_critical"],
                         metadata["list_length_critical"],
                     ):
+                        print(line_file_console_output_submission)
+
                         line_file_console_output_submission = file_console_output_submission.readline().replace(
                             "\n", ""
                         )
-                        print(line_file_console_output_submission)
+                    print(line_file_console_output_submission)
+
                     line_file_console_output_submission = file_console_output_submission.readline().replace(
                         "\n", ""
                     )
@@ -275,6 +292,8 @@ def compare_results():
                         metadata["list_separators"],
                         metadata["list_length_separators"],
                     ):
+                        count += 1
+
                         text += (
                             LIST_SPACERS[1]
                             + " EXPECTED OUTPUT "

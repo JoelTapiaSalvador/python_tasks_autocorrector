@@ -7,12 +7,15 @@
 ========================================= Test 2 =========================================
 >>> Tested
 ========================================= Test 5 =========================================
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ERRORS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 Traceback (most recent call last):
-  File "test/test_battery_of_tests.py", line 233, in main
+  File "C:\Users\JoelT\OneDrive\Data\Computer\Programing\python_tasks_autocorrector\test/test_battery_of_tests.py", line 242, in main
     test(internal_spec, internal_module)
-  File "test/test_battery_of_tests.py", line 170, in test_5
+  File "C:\Users\JoelT\OneDrive\Data\Computer\Programing\python_tasks_autocorrector\test/test_battery_of_tests.py", line 171, in test_5
     internal_module.testOtherException()
-  File "test/test_submission.py", line 20, in testOtherException
+  File "C:\Users\JoelT\OneDrive\Data\Computer\Programing\python_tasks_autocorrector\test/test_submission.py", line 20, in testOtherException
     raise UserWarning("This is a warning")
 UserWarning: This is a warning
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
