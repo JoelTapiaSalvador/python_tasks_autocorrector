@@ -8,6 +8,9 @@ import importlib
 import json
 import os
 import sys
+from dataclasses import dataclass
+from _io import TextIOWrapper
+
 
 ###############################################################################
 #                  WRITE HERE THE FILE PATH TO THE DIRECTORY                  #
@@ -61,6 +64,7 @@ def check_environment():
     print("Checking environment...\n")
     if not os.path.isdir(FILE_PATH_DIRECTORY_SCRIPTS):
         raise NotADirectoryError("File path is not a directory.")
+
     if not os.path.isfile(
         FILE_PATH_DIRECTORY_SCRIPTS + FILE_NAME_SCRIPT_BATTERY_OF_TESTS
     ):
@@ -69,19 +73,25 @@ def check_environment():
             + FILE_PATH_DIRECTORY_SCRIPTS
             + FILE_NAME_SCRIPT_BATTERY_OF_TESTS
         )
-    if not os.path.isfile(FILE_PATH_DIRECTORY_SCRIPTS + FILE_NAME_SOLUTION_SCRIPT):
+
+    if not os.path.isfile(FILE_PATH_DIRECTORY_SCRIPTS
+                          + FILE_NAME_SOLUTION_SCRIPT):
         raise FileNotFoundError(
             "Script solution not found: "
             + FILE_PATH_DIRECTORY_SCRIPTS
             + FILE_NAME_SOLUTION_SCRIPT
         )
-    if not os.path.isfile(FILE_PATH_DIRECTORY_SCRIPTS + FILE_NAME_SUBMITED_SCRIPT):
+
+    if not os.path.isfile(FILE_PATH_DIRECTORY_SCRIPTS
+                          + FILE_NAME_SUBMITED_SCRIPT):
         raise FileNotFoundError(
             "Script submission not found: "
             + FILE_PATH_DIRECTORY_SCRIPTS
             + FILE_NAME_SUBMITED_SCRIPT
         )
-    if os.path.isfile(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SOLUTION):
+
+    if os.path.isfile(FILE_PATH_DIRECTORY_SCRIPTS
+                      + FILENAME_CONSOLE_OUTPUT_SOLUTION):
         if OVERWRITE:
             os.remove(FILE_PATH_DIRECTORY_SCRIPTS +
                       FILENAME_CONSOLE_OUTPUT_SOLUTION)
@@ -91,7 +101,9 @@ def check_environment():
                 + FILE_PATH_DIRECTORY_SCRIPTS
                 + FILENAME_CONSOLE_OUTPUT_SOLUTION
             )
-    if os.path.isfile(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SUBMITED):
+
+    if os.path.isfile(FILE_PATH_DIRECTORY_SCRIPTS
+                      + FILENAME_CONSOLE_OUTPUT_SUBMITED):
         if OVERWRITE:
             os.remove(FILE_PATH_DIRECTORY_SCRIPTS +
                       FILENAME_CONSOLE_OUTPUT_SUBMITED)
@@ -141,6 +153,7 @@ def check_special_text(text, list_special_texts, list_length_special_texts):
                 len(list_length_special_texts)) + ") do not have"
             + " the same lengths."
         )
+
     for special_text, length_special_text in zip(
         list_special_texts, list_length_special_texts
     ):
@@ -166,21 +179,26 @@ def clean_environment():
         ):
             os.remove(FILE_PATH_DIRECTORY_SCRIPTS +
                       FILENAME_CONSOLE_OUTPUT_SOLUTION)
+
         if os.path.isfile(
             FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SUBMITED
         ):
             os.remove(FILE_PATH_DIRECTORY_SCRIPTS +
                       FILENAME_CONSOLE_OUTPUT_SUBMITED)
+
         if os.path.isfile(
             FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_METADATA_BATTERY_OF_TESTS
         ):
             os.remove(FILE_PATH_DIRECTORY_SCRIPTS +
                       FILENAME_METADATA_BATTERY_OF_TESTS)
+
         if os.path.isdir(FILE_PATH_DIRECTORY_SCRIPTS + "__pycache__"):
-            for file_name in os.listdir(FILE_PATH_DIRECTORY_SCRIPTS + "__pycache__"):
+            for file_name in os.listdir(FILE_PATH_DIRECTORY_SCRIPTS
+                                        + "__pycache__"):
                 os.remove(FILE_PATH_DIRECTORY_SCRIPTS +
                           "__pycache__/" + file_name)
             os.rmdir(FILE_PATH_DIRECTORY_SCRIPTS + "__pycache__")
+
         if os.path.isdir("__pycache__"):
             for file_name in os.listdir("__pycache__"):
                 os.remove("__pycache__/" + file_name)
@@ -198,6 +216,22 @@ def compare_results():
 
     """
     print("Comparing results...\n")
+
+    @dataclass
+    class Console_Log_Line():
+
+        __line: str
+        __file: TextIOWrapper
+
+        def __init__(self, file_path: str):
+            self.__file = open(file_path, "r", encoding="UTF-8")
+
+        @property
+        def line(self):
+            return self.__line
+
+        def read_next_line(self):
+            self.__line = self.__file.readline().replace("\n", "")
 
     prev_is_separator = True
 
@@ -251,6 +285,7 @@ def compare_results():
                     count += 1
                     grade += 1
                     text += LIST_SPACERS[0] + " RIGHT " + LIST_SPACERS[0]
+
                 line_file_console_output_solution = (
                     file_console_output_solution.readline()
                 )
@@ -267,6 +302,7 @@ def compare_results():
                     line_file_console_output_submission = file_console_output_submission.readline().replace(
                         "\n", ""
                     )
+
                     while not check_special_text(
                         line_file_console_output_submission,
                         metadata["list_critical"],
@@ -277,6 +313,7 @@ def compare_results():
                         line_file_console_output_submission = file_console_output_submission.readline().replace(
                             "\n", ""
                         )
+
                     print(line_file_console_output_submission)
 
                     line_file_console_output_submission = file_console_output_submission.readline().replace(
@@ -306,6 +343,7 @@ def compare_results():
                         line_file_console_output_solution = (
                             file_console_output_solution.readline()
                         )
+
                     if not check_special_text(
                         line_file_console_output_submission,
                         metadata["list_commentators"],
@@ -326,59 +364,14 @@ def compare_results():
                         line_file_console_output_submission = (
                             file_console_output_submission.readline()
                         )
-            """
 
-            if line_file_console_output_solution != "" and (
-                line_file_console_output_solution[0] in metadata["list_separators"]
-                or line_file_console_output_solution[:3]
-                in metadata["list_commentators"]
-            ):
-                prev_is_separator = print_with_separators(
-                    line_file_console_output_solution, prev_is_separator
-                )
-            else:
-                count += 1
+            if text != "":
+                pass
 
-                if (
-                    line_file_console_output_solution
-                    == line_file_console_output_submission
-                ):
-                    text += LIST_SPACERS[0] + " RIGHT " + LIST_SPACERS[0]
-                    grade += 1
-                else:
-                    text += LIST_SPACERS[0] + " WRONG " + LIST_SPACERS[0] + "\n"
-                    if (
-                        line_file_console_output_solution != ""
-                        and line_file_console_output_solution[0]
-                        not in metadata["list_separators"]
-                        and line_file_console_output_solution
-                        not in metadata["list_commentators"]
-                    ):
-                        text += (
-                            LIST_SPACERS[1]
-                            + " EXPECTED OUTPUT "
-                            + LIST_SPACERS[1]
-                            + "\n"
-                            + line_file_console_output_solution
-                            + "\n"
-                        )
-                    if (
-                        line_file_console_output_submission != ""
-                        and line_file_console_output_submission[0]
-                        not in metadata["list_separators"]
-                        and line_file_console_output_submission
-                        not in metadata["list_commentators"]
-                    ):
-                        text += (
-                            LIST_SPACERS[1]
-                            + " OBTAINED RESULT "
-                            + LIST_SPACERS[1]
-                            + "\n"
-                            + line_file_console_output_submission
-                        )
-                """
             prev_is_separator = print_with_separators(text, prev_is_separator)
+
         print()
+
     if SCORE and count != 0:
         print(LIST_SEPARATORS[1])
         print(
@@ -390,6 +383,7 @@ def compare_results():
             + str(grade / count * 100)
             + "%"
         )
+
         print(LIST_SEPARATORS[1] + "\n")
 
 
@@ -419,6 +413,7 @@ def evaluate_solution():
             FILE_PATH_DIRECTORY_SCRIPTS + FILE_NAME_SOLUTION_SCRIPT,
             FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_METADATA_BATTERY_OF_TESTS,
         )
+
     sys.stdout = DEFAULT_OUTPUT
 
 
@@ -447,6 +442,7 @@ def evaluate_submission():
         MODULE_BATTERY_OF_TESTS.autocorrector(
             FILE_PATH_DIRECTORY_SCRIPTS + FILE_NAME_SUBMITED_SCRIPT
         )
+
     sys.stdout = DEFAULT_OUTPUT
 
 
@@ -519,11 +515,15 @@ def print_with_separators(text, prev_is_separator):
     None.
 
     """
+    if text == "":
+        return prev_is_separator
+
     if not prev_is_separator:
         print(LIST_SEPARATORS[0])
         prev_is_separator = True
     else:
         prev_is_separator = False
+
     print(text)
 
     if not prev_is_separator:
@@ -531,6 +531,7 @@ def print_with_separators(text, prev_is_separator):
         prev_is_separator = True
     else:
         prev_is_separator = False
+
     return prev_is_separator
 
 
