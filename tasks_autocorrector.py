@@ -8,7 +8,7 @@ import importlib
 import json
 import os
 import sys
-from dataclasses import dataclass
+from typing import List, Tuple
 from _io import TextIOWrapper
 
 
@@ -115,53 +115,6 @@ def check_environment():
             )
 
 
-def check_special_text(text, list_special_texts, list_length_special_texts):
-    """
-    Funtions returns True if one of the strings of list_special_texts is found
-    in the first given positions by list_length_special_texts in the passed
-    text.
-
-    Parameters
-    ----------
-    text : String
-        Given text that is compared to know if starts by one of the strings
-        given.
-    list_special_texts : List[String]
-        List of string, ordered from biggest length to lowest length.
-    list_length_special_texts : List[Interger]
-        List of integers that represent the length of each string of
-        list_special_texts orderes as list_special_textsis and must have the
-        same length as list_special_texts.
-
-    Raises
-    ------
-    ValueError
-        Raised when both the list list_special_texts and
-        list_length_special_texts do not have the same length.
-
-    Returns
-    -------
-    Bool
-        Return True of False if the text starts with one of the given strings.
-
-    """
-    if len(list_special_texts) != len(list_length_special_texts):
-        raise ValueError(
-            "List list_special_texts (length = " + str(
-                len(list_special_texts)) +
-            ") and list_length_special_texts (" + str(
-                len(list_length_special_texts)) + ") do not have"
-            + " the same lengths."
-        )
-
-    for special_text, length_special_text in zip(
-        list_special_texts, list_length_special_texts
-    ):
-        if text[:length_special_text] == special_text:
-            return True
-    return False
-
-
 def clean_environment():
     """
     If the global variable CLEAN_ENVIRONMENT is true this functions cleans all
@@ -217,23 +170,113 @@ def compare_results():
     """
     print("Comparing results...\n")
 
-    @dataclass
+    class Special_Text():
+        def __init__(self, texts: str, lengths: int):
+            self.__special_text: str = texts
+            self.__length_special_text: int = lengths
+
+        def __iter__(self) -> Tuple(str, int):
+            for text, length in zip(
+                self.__special_text, self.__length_special_text
+            ):
+                yield text, length
+
     class Console_Log_Line():
+        def __init__(self,
+                     file_path: str,
+                     commentators: List(Special_Text),
+                     criticals: List(Special_Text),
+                     separators: List(Special_Text)):
 
-        __line: str
-        __file: TextIOWrapper
+            self.__is_commentator: bool = False
+            self.__is_critical: bool = False
+            self.__is_separators: bool = False
 
-        def __init__(self, file_path: str):
-            self.__file = open(file_path, "r", encoding="UTF-8")
+            self.__number_separators_read: int = 0
+
+            self.__line: str = ""
+
+            self.__commentators: List(Special_Text) = commentators
+            self.__criticals: List(Special_Text) = criticals
+            self.__separators: List(Special_Text) = separators
+
+            self.__file: TextIOWrapper = open(file_path, "r", encoding="UTF-8")
+
+            self.read_next_line()
 
         @property
-        def line(self):
+        def is_commentator(self) -> bool:
+            return self.__is_commentator
+
+        @property
+        def is_critical(self) -> bool:
+            return self.__is_critical
+
+        @property
+        def is_separators(self) -> bool:
+            return self.__is_separators
+
+        @property
+        def line(self) -> str:
             return self.__line
+
+        @property
+        def number_separators_read(self) -> int:
+            return self.__number_separators_read
+
+        def __check_special_text(self, special_texts: List(Special_Text)) -> bool:
+            """
+            Funtions returns True if one of the strings of list_special_texts is found
+            in the first given positions by list_length_special_texts in the passed
+            text.
+
+            Parameters
+            ----------
+            text : String
+                Given text that is compared to know if starts by one of the strings
+                given.
+            list_special_texts : List[String]
+                List of string, ordered from biggest length to lowest length.
+            list_length_special_texts : List[Interger]
+                List of integers that represent the length of each string of
+                list_special_texts orderes as list_special_textsis and must have the
+                same length as list_special_texts.
+
+            Raises
+            ------
+            ValueError
+                Raised when both the list list_special_texts and
+                list_length_special_texts do not have the same length.
+
+            Returns
+            -------
+            Bool
+                Return True of False if the text starts with one of the given strings.
+
+            """
+            for text, length in special_texts:
+                if self.__line[:length] == text:
+                    return True
+
+            return False
+
+        def check_special_text(self):
+            self.__is_commentator = self.__check_special_text(
+                self.__commentators)
+
+            self.__is_critical = self.__check_special_text(
+                self.__criticals)
+
+            self.__is_separators = self.__check_special_text(
+                self.__separators)
+
+            if self.__is_separators:
+                self.__number_separators_read += 1
 
         def read_next_line(self):
             self.__line = self.__file.readline().replace("\n", "")
 
-    prev_is_separator = True
+            self.check_special_text()
 
     with open(
         FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_METADATA_BATTERY_OF_TESTS,
@@ -242,133 +285,92 @@ def compare_results():
     ) as file_metadata:
         metadata = json.load(file_metadata)
 
+    commentators = [Special_Text(text, length) for text, length in zip(
+        metadata["list_commentators"], metadata["list_length_commentators"])]
+
+    criticals = [Special_Text(text, length) for text, length in zip(
+        metadata["list_critical"], metadata["list_length_critical"])]
+
+    separators = [Special_Text(text, length) for text, length in zip(
+        metadata["list_separators"], metadata["list_length_separators"])]
+
     count = 0
     grade = 0
 
-    with open(
+    prev_is_separator = True
+
+    file_console_output_solution = Console_Log_Line(
         FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SOLUTION,
-        "r",
-        encoding="UTF-8",
-    ) as file_console_output_solution, open(
+        commentators, criticals, separators)
+
+    file_console_output_submission = Console_Log_Line(
         FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SUBMITED,
-        "r",
-        encoding="UTF-8",
-    ) as file_console_output_submission:
+        commentators, criticals, separators)
 
-        line_file_console_output_solution = file_console_output_solution.readline()
-        line_file_console_output_submission = file_console_output_submission.readline()
+    while (
+        file_console_output_solution.line != ""
+        or file_console_output_submission.line != ""
+    ):
+        text = ""
 
-        while (
-            line_file_console_output_solution != ""
-            or line_file_console_output_submission != ""
-        ):
-            text = ""
-            line_file_console_output_solution = line_file_console_output_solution.replace(
-                "\n", ""
-            )
-            line_file_console_output_submission = line_file_console_output_submission.replace(
-                "\n", ""
-            )
-
-            if line_file_console_output_solution == line_file_console_output_submission:
-                if check_special_text(
-                    line_file_console_output_solution,
-                    metadata["list_commentators"],
-                    metadata["list_length_commentators"],
-                ) or check_special_text(
-                    line_file_console_output_solution,
-                    metadata["list_separators"],
-                    metadata["list_length_separators"],
-                ):
-                    text += line_file_console_output_solution
-                else:
-                    count += 1
-                    grade += 1
-                    text += LIST_SPACERS[0] + " RIGHT " + LIST_SPACERS[0]
-
-                line_file_console_output_solution = (
-                    file_console_output_solution.readline()
-                )
-                line_file_console_output_submission = (
-                    file_console_output_submission.readline()
-                )
+        if file_console_output_solution.line == file_console_output_submission.line:
+            if (file_console_output_solution.is_commentator
+                    or file_console_output_solution.is_separators):
+                text += file_console_output_solution.line
             else:
-                if check_special_text(
-                    line_file_console_output_submission,
-                    metadata["list_critical"],
-                    metadata["list_length_critical"],
-                ):
-                    print(line_file_console_output_submission)
-                    line_file_console_output_submission = file_console_output_submission.readline().replace(
-                        "\n", ""
+                count += 1
+                grade += 1
+
+                text += LIST_SPACERS[0] + " RIGHT " + LIST_SPACERS[0]
+
+            file_console_output_solution.read_next_line()
+            file_console_output_submission.read_next_line()
+        else:
+            if file_console_output_submission.is_critical:
+                print(file_console_output_submission.line)
+                file_console_output_submission.read_next_line()
+
+                while not file_console_output_submission.is_critical:
+                    print(file_console_output_submission.line)
+
+                    file_console_output_submission.read_next_line()
+
+                print(file_console_output_submission.line)
+
+                file_console_output_submission.read_next_line()
+
+            else:
+                if (not file_console_output_solution.is_commentator
+                        and not file_console_output_solution.is_separators):
+                    count += 1
+
+                    text += (
+                        LIST_SPACERS[1]
+                        + " EXPECTED OUTPUT "
+                        + LIST_SPACERS[1]
+                        + "\n"
+                        + file_console_output_solution.line
+                        + "\n"
                     )
 
-                    while not check_special_text(
-                        line_file_console_output_submission,
-                        metadata["list_critical"],
-                        metadata["list_length_critical"],
-                    ):
-                        print(line_file_console_output_submission)
+                    file_console_output_solution.read_next_line()
 
-                        line_file_console_output_submission = file_console_output_submission.readline().replace(
-                            "\n", ""
-                        )
-
-                    print(line_file_console_output_submission)
-
-                    line_file_console_output_submission = file_console_output_submission.readline().replace(
-                        "\n", ""
+                if (not file_console_output_submission.is_commentator
+                        and not file_console_output_submission.is_separators):
+                    text += (
+                        LIST_SPACERS[1]
+                        + " OBTAINED RESULT "
+                        + LIST_SPACERS[1]
+                        + "\n"
+                        + file_console_output_submission.line
                     )
-                else:
-                    if not check_special_text(
-                        line_file_console_output_solution,
-                        metadata["list_commentators"],
-                        metadata["list_length_commentators"],
-                    ) and not check_special_text(
-                        line_file_console_output_solution,
-                        metadata["list_separators"],
-                        metadata["list_length_separators"],
-                    ):
-                        count += 1
 
-                        text += (
-                            LIST_SPACERS[1]
-                            + " EXPECTED OUTPUT "
-                            + LIST_SPACERS[1]
-                            + "\n"
-                            + line_file_console_output_solution
-                            + "\n"
-                        )
+                    file_console_output_submission.read_next_line()
 
-                        line_file_console_output_solution = (
-                            file_console_output_solution.readline()
-                        )
+        if text != "":
+            pass
 
-                    if not check_special_text(
-                        line_file_console_output_submission,
-                        metadata["list_commentators"],
-                        metadata["list_length_commentators"],
-                    ) and not check_special_text(
-                        line_file_console_output_submission,
-                        metadata["list_separators"],
-                        metadata["list_length_separators"],
-                    ):
-                        text += (
-                            LIST_SPACERS[1]
-                            + " OBTAINED RESULT "
-                            + LIST_SPACERS[1]
-                            + "\n"
-                            + line_file_console_output_submission
-                        )
-
-                        line_file_console_output_submission = (
-                            file_console_output_submission.readline()
-                        )
-
-            if text != "":
-                pass
-
-            prev_is_separator = print_with_separators(text, prev_is_separator)
+        prev_is_separator = print_with_separators(text, prev_is_separator)
 
         print()
 
