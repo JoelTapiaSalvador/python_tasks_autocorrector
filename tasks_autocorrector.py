@@ -37,6 +37,205 @@ WIDTH = 36
 ###############################################################################
 
 
+###############################################################################
+#                                   CLASSES                                   #
+class Special_Text:
+    """
+    This class takes two list, one of string and the other of strings lengths
+    and generates an iterator over it.
+
+    ...
+
+    Parameters
+    ----------
+    texts : String
+        The number of dimensions in the grid
+
+    mu : scalar(int) or array_like(int, ndim=1, length=d)
+        The &quot;density&quot; parameter for the grid
+
+    Attributes
+    ----------
+    lb : array_like(float, ndim=2)
+        This is an array of the lower bounds for each dimension
+
+    Methods
+    -------
+    colorspace(c='rgb')
+        Represent the photo in the given colorspace.
+    gamma(n=1.0)
+        Change the photo's gamma exposure.
+
+    """
+
+    def __init__(self, texts: str, lengths: int):
+        """
+
+
+        Parameters
+        ----------
+        texts : str
+            DESCRIPTION.
+        lengths : int
+            DESCRIPTION.
+
+        Returns
+        -------
+        None.
+
+        """
+        self.__special_text: str = texts
+        self.__length_special_text: int = lengths
+
+    def __iter__(self) -> Tuple(str, int):
+        """
+
+
+        Yields
+        ------
+        Tuple(str, int)
+            DESCRIPTION.
+
+        """
+        for text, length in zip(self.__special_text, self.__length_special_text):
+            yield text, length
+
+
+class Console_Log_Line:
+    def __del__(self):
+        """
+
+
+        Returns
+        -------
+        None.
+
+        """
+        self.__file.close()
+
+    def __init__(
+        self,
+        file_path: str,
+        commentators: List(Special_Text),
+        criticals: List(Special_Text),
+        separators: List(Special_Text),
+    ):
+        """
+
+
+        Parameters
+        ----------
+        file_path : str
+            DESCRIPTION.
+        commentators : List(Special_Text)
+            DESCRIPTION.
+        criticals : List(Special_Text)
+            DESCRIPTION.
+        separators : List(Special_Text)
+            DESCRIPTION.
+         : TYPE
+            DESCRIPTION.
+
+        Returns
+        -------
+        None.
+
+        """
+
+        self.__is_commentator: bool = False
+        self.__is_critical: bool = False
+        self.__is_separators: bool = False
+
+        self.__number_separators_read: int = 0
+
+        self.__line: str = ""
+
+        self.__commentators: List(Special_Text) = commentators
+        self.__criticals: List(Special_Text) = criticals
+        self.__separators: List(Special_Text) = separators
+
+        self.__file: TextIOWrapper = open(  # pylint: disable=consider-using-with
+            file_path, "r", encoding="UTF-8"
+        )
+
+        self.read_next_line()
+
+    @property
+    def is_commentator(self) -> bool:
+        return self.__is_commentator
+
+    @property
+    def is_critical(self) -> bool:
+        return self.__is_critical
+
+    @property
+    def is_separators(self) -> bool:
+        return self.__is_separators
+
+    @property
+    def line(self) -> str:
+        return self.__line
+
+    @property
+    def number_separators_read(self) -> int:
+        return self.__number_separators_read
+
+    def __check_special_text(self, special_texts: List(Special_Text)) -> bool:
+        """
+        Funtions returns True if one of the strings of list_special_texts is found
+        in the first given positions by list_length_special_texts in the passed
+        text.
+
+        Parameters
+        ----------
+        text : String
+            Given text that is compared to know if starts by one of the strings
+            given.
+        list_special_texts : List[String]
+            List of string, ordered from biggest length to lowest length.
+        list_length_special_texts : List[Interger]
+            List of integers that represent the length of each string of
+            list_special_texts orderes as list_special_textsis and must have the
+            same length as list_special_texts.
+
+        Raises
+        ------
+        ValueError
+            Raised when both the list list_special_texts and
+            list_length_special_texts do not have the same length.
+
+        Returns
+        -------
+        Bool
+            Return True of False if the text starts with one of the given strings.
+
+        """
+        for text, length in special_texts:
+            if self.__line[:length] == text:
+                return True
+        return False
+
+    def check_special_text(self):
+        self.__is_commentator = self.__check_special_text(self.__commentators)
+
+        self.__is_critical = self.__check_special_text(self.__criticals)
+
+        self.__is_separators = self.__check_special_text(self.__separators)
+
+        if self.__is_separators:
+            self.__number_separators_read += 1
+
+    def read_next_line(self):
+        self.__line = self.__file.readline().replace("\n", "")
+
+        self.check_special_text()
+
+
+###############################################################################
+
+
+###############################################################################
+#                                  FUNCTIONS                                  #
 def check_environment():
     """
     Checks if the environment is in proper state for executing the
@@ -64,7 +263,6 @@ def check_environment():
     print("Checking environment...\n")
     if not os.path.isdir(FILE_PATH_DIRECTORY_SCRIPTS):
         raise NotADirectoryError("File path is not a directory.")
-
     if not os.path.isfile(
         FILE_PATH_DIRECTORY_SCRIPTS + FILE_NAME_SCRIPT_BATTERY_OF_TESTS
     ):
@@ -73,40 +271,30 @@ def check_environment():
             + FILE_PATH_DIRECTORY_SCRIPTS
             + FILE_NAME_SCRIPT_BATTERY_OF_TESTS
         )
-
-    if not os.path.isfile(FILE_PATH_DIRECTORY_SCRIPTS
-                          + FILE_NAME_SOLUTION_SCRIPT):
+    if not os.path.isfile(FILE_PATH_DIRECTORY_SCRIPTS + FILE_NAME_SOLUTION_SCRIPT):
         raise FileNotFoundError(
             "Script solution not found: "
             + FILE_PATH_DIRECTORY_SCRIPTS
             + FILE_NAME_SOLUTION_SCRIPT
         )
-
-    if not os.path.isfile(FILE_PATH_DIRECTORY_SCRIPTS
-                          + FILE_NAME_SUBMITED_SCRIPT):
+    if not os.path.isfile(FILE_PATH_DIRECTORY_SCRIPTS + FILE_NAME_SUBMITED_SCRIPT):
         raise FileNotFoundError(
             "Script submission not found: "
             + FILE_PATH_DIRECTORY_SCRIPTS
             + FILE_NAME_SUBMITED_SCRIPT
         )
-
-    if os.path.isfile(FILE_PATH_DIRECTORY_SCRIPTS
-                      + FILENAME_CONSOLE_OUTPUT_SOLUTION):
+    if os.path.isfile(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SOLUTION):
         if OVERWRITE:
-            os.remove(FILE_PATH_DIRECTORY_SCRIPTS +
-                      FILENAME_CONSOLE_OUTPUT_SOLUTION)
+            os.remove(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SOLUTION)
         else:
             raise FileExistsError(
                 "Console output file for solution already exists."
                 + FILE_PATH_DIRECTORY_SCRIPTS
                 + FILENAME_CONSOLE_OUTPUT_SOLUTION
             )
-
-    if os.path.isfile(FILE_PATH_DIRECTORY_SCRIPTS
-                      + FILENAME_CONSOLE_OUTPUT_SUBMITED):
+    if os.path.isfile(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SUBMITED):
         if OVERWRITE:
-            os.remove(FILE_PATH_DIRECTORY_SCRIPTS +
-                      FILENAME_CONSOLE_OUTPUT_SUBMITED)
+            os.remove(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SUBMITED)
         else:
             raise FileExistsError(
                 "Console output file for submission already exists."
@@ -130,28 +318,19 @@ def clean_environment():
         if os.path.isfile(
             FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SOLUTION
         ):
-            os.remove(FILE_PATH_DIRECTORY_SCRIPTS +
-                      FILENAME_CONSOLE_OUTPUT_SOLUTION)
-
+            os.remove(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SOLUTION)
         if os.path.isfile(
             FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SUBMITED
         ):
-            os.remove(FILE_PATH_DIRECTORY_SCRIPTS +
-                      FILENAME_CONSOLE_OUTPUT_SUBMITED)
-
+            os.remove(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SUBMITED)
         if os.path.isfile(
             FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_METADATA_BATTERY_OF_TESTS
         ):
-            os.remove(FILE_PATH_DIRECTORY_SCRIPTS +
-                      FILENAME_METADATA_BATTERY_OF_TESTS)
-
+            os.remove(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_METADATA_BATTERY_OF_TESTS)
         if os.path.isdir(FILE_PATH_DIRECTORY_SCRIPTS + "__pycache__"):
-            for file_name in os.listdir(FILE_PATH_DIRECTORY_SCRIPTS
-                                        + "__pycache__"):
-                os.remove(FILE_PATH_DIRECTORY_SCRIPTS +
-                          "__pycache__/" + file_name)
+            for file_name in os.listdir(FILE_PATH_DIRECTORY_SCRIPTS + "__pycache__"):
+                os.remove(FILE_PATH_DIRECTORY_SCRIPTS + "__pycache__/" + file_name)
             os.rmdir(FILE_PATH_DIRECTORY_SCRIPTS + "__pycache__")
-
         if os.path.isdir("__pycache__"):
             for file_name in os.listdir("__pycache__"):
                 os.remove("__pycache__/" + file_name)
@@ -170,129 +349,32 @@ def compare_results():
     """
     print("Comparing results...\n")
 
-    class Special_Text():
-        def __init__(self, texts: str, lengths: int):
-            self.__special_text: str = texts
-            self.__length_special_text: int = lengths
-
-        def __iter__(self) -> Tuple(str, int):
-            for text, length in zip(
-                self.__special_text, self.__length_special_text
-            ):
-                yield text, length
-
-    class Console_Log_Line():
-        def __init__(self,
-                     file_path: str,
-                     commentators: List(Special_Text),
-                     criticals: List(Special_Text),
-                     separators: List(Special_Text)):
-
-            self.__is_commentator: bool = False
-            self.__is_critical: bool = False
-            self.__is_separators: bool = False
-
-            self.__number_separators_read: int = 0
-
-            self.__line: str = ""
-
-            self.__commentators: List(Special_Text) = commentators
-            self.__criticals: List(Special_Text) = criticals
-            self.__separators: List(Special_Text) = separators
-
-            self.__file: TextIOWrapper = open(file_path, "r", encoding="UTF-8")
-
-            self.read_next_line()
-
-        @property
-        def is_commentator(self) -> bool:
-            return self.__is_commentator
-
-        @property
-        def is_critical(self) -> bool:
-            return self.__is_critical
-
-        @property
-        def is_separators(self) -> bool:
-            return self.__is_separators
-
-        @property
-        def line(self) -> str:
-            return self.__line
-
-        @property
-        def number_separators_read(self) -> int:
-            return self.__number_separators_read
-
-        def __check_special_text(self, special_texts: List(Special_Text)) -> bool:
-            """
-            Funtions returns True if one of the strings of list_special_texts is found
-            in the first given positions by list_length_special_texts in the passed
-            text.
-
-            Parameters
-            ----------
-            text : String
-                Given text that is compared to know if starts by one of the strings
-                given.
-            list_special_texts : List[String]
-                List of string, ordered from biggest length to lowest length.
-            list_length_special_texts : List[Interger]
-                List of integers that represent the length of each string of
-                list_special_texts orderes as list_special_textsis and must have the
-                same length as list_special_texts.
-
-            Raises
-            ------
-            ValueError
-                Raised when both the list list_special_texts and
-                list_length_special_texts do not have the same length.
-
-            Returns
-            -------
-            Bool
-                Return True of False if the text starts with one of the given strings.
-
-            """
-            for text, length in special_texts:
-                if self.__line[:length] == text:
-                    return True
-
-            return False
-
-        def check_special_text(self):
-            self.__is_commentator = self.__check_special_text(
-                self.__commentators)
-
-            self.__is_critical = self.__check_special_text(
-                self.__criticals)
-
-            self.__is_separators = self.__check_special_text(
-                self.__separators)
-
-            if self.__is_separators:
-                self.__number_separators_read += 1
-
-        def read_next_line(self):
-            self.__line = self.__file.readline().replace("\n", "")
-
-            self.check_special_text()
-
     with open(
         FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_METADATA_BATTERY_OF_TESTS,
         "r",
         encoding="UTF-8",
     ) as file_metadata:
         metadata = json.load(file_metadata)
+    commentators = [
+        Special_Text(text, length)
+        for text, length in zip(
+            metadata["list_commentators"], metadata["list_length_commentators"]
+        )
+    ]
 
-    commentators = [Special_Text(text, length) for text, length in zip(
-        metadata["list_commentators"], metadata["list_length_commentators"])]
+    criticals = [
+        Special_Text(text, length)
+        for text, length in zip(
+            metadata["list_critical"], metadata["list_length_critical"]
+        )
+    ]
 
-    criticals = [Special_Text(text, length) for text, length in zip(
-        metadata["list_critical"], metadata["list_length_critical"])]
-
-    separators = [Special_Text(text, length) for text, length in zip(
-        metadata["list_separators"], metadata["list_length_separators"])]
+    separators = [
+        Special_Text(text, length)
+        for text, length in zip(
+            metadata["list_separators"], metadata["list_length_separators"]
+        )
+    ]
 
     count = 0
     grade = 0
@@ -301,11 +383,17 @@ def compare_results():
 
     file_console_output_solution = Console_Log_Line(
         FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SOLUTION,
-        commentators, criticals, separators)
+        commentators,
+        criticals,
+        separators,
+    )
 
     file_console_output_submission = Console_Log_Line(
         FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SUBMITED,
-        commentators, criticals, separators)
+        commentators,
+        criticals,
+        separators,
+    )
 
     while (
         file_console_output_solution.line != ""
@@ -314,15 +402,16 @@ def compare_results():
         text = ""
 
         if file_console_output_solution.line == file_console_output_submission.line:
-            if (file_console_output_solution.is_commentator
-                    or file_console_output_solution.is_separators):
+            if (
+                file_console_output_solution.is_commentator
+                or file_console_output_solution.is_separators
+            ):
                 text += file_console_output_solution.line
             else:
                 count += 1
                 grade += 1
 
                 text += LIST_SPACERS[0] + " RIGHT " + LIST_SPACERS[0]
-
             file_console_output_solution.read_next_line()
             file_console_output_submission.read_next_line()
         else:
@@ -334,14 +423,14 @@ def compare_results():
                     print(file_console_output_submission.line)
 
                     file_console_output_submission.read_next_line()
-
                 print(file_console_output_submission.line)
 
                 file_console_output_submission.read_next_line()
-
             else:
-                if (not file_console_output_solution.is_commentator
-                        and not file_console_output_solution.is_separators):
+                if (
+                    not file_console_output_solution.is_commentator
+                    and not file_console_output_solution.is_separators
+                ):
                     count += 1
 
                     text += (
@@ -354,9 +443,10 @@ def compare_results():
                     )
 
                     file_console_output_solution.read_next_line()
-
-                if (not file_console_output_submission.is_commentator
-                        and not file_console_output_submission.is_separators):
+                if (
+                    not file_console_output_submission.is_commentator
+                    and not file_console_output_submission.is_separators
+                ):
                     text += (
                         LIST_SPACERS[1]
                         + " OBTAINED RESULT "
@@ -366,14 +456,11 @@ def compare_results():
                     )
 
                     file_console_output_submission.read_next_line()
-
         if text != "":
             pass
-
         prev_is_separator = print_with_separators(text, prev_is_separator)
 
         print()
-
     if SCORE and count != 0:
         print(LIST_SEPARATORS[1])
         print(
@@ -415,7 +502,6 @@ def evaluate_solution():
             FILE_PATH_DIRECTORY_SCRIPTS + FILE_NAME_SOLUTION_SCRIPT,
             FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_METADATA_BATTERY_OF_TESTS,
         )
-
     sys.stdout = DEFAULT_OUTPUT
 
 
@@ -444,7 +530,6 @@ def evaluate_submission():
         MODULE_BATTERY_OF_TESTS.autocorrector(
             FILE_PATH_DIRECTORY_SCRIPTS + FILE_NAME_SUBMITED_SCRIPT
         )
-
     sys.stdout = DEFAULT_OUTPUT
 
 
@@ -519,13 +604,11 @@ def print_with_separators(text, prev_is_separator):
     """
     if text == "":
         return prev_is_separator
-
     if not prev_is_separator:
         print(LIST_SEPARATORS[0])
         prev_is_separator = True
     else:
         prev_is_separator = False
-
     print(text)
 
     if not prev_is_separator:
@@ -533,10 +616,14 @@ def print_with_separators(text, prev_is_separator):
         prev_is_separator = True
     else:
         prev_is_separator = False
-
     return prev_is_separator
 
 
+###############################################################################
+
+
+###############################################################################
+#                                    MAIN                                    #
 if __name__ == "__main__":
     check_environment()
 
@@ -551,3 +638,4 @@ if __name__ == "__main__":
     clean_environment()
 
     print("Finished.")
+###############################################################################
