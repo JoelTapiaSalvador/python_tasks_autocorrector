@@ -41,7 +41,7 @@ WIDTH = 36
 #                                   CLASSES                                   #
 class Special_Text:
     """
-    This class takes two list, one of string and the other of strings lengths
+    Class takes two list, one of string and the other of strings lengths
     and generates an iterator over it.
 
     ...
@@ -104,7 +104,7 @@ class Special_Text:
 class Console_Log_Line:
     def __del__(self):
         """
-
+        Closes the open TextIOWrapper before delition.
 
         Returns
         -------
@@ -121,12 +121,12 @@ class Console_Log_Line:
         separators: List(Special_Text),
     ):
         """
-
+        Private method. Sets up the
 
         Parameters
         ----------
-        file_path : str
-            DESCRIPTION.
+        file_path : String
+            String containing the path to the file that is the console logging.
         commentators : List(Special_Text)
             DESCRIPTION.
         criticals : List(Special_Text)
@@ -136,12 +136,21 @@ class Console_Log_Line:
          : TYPE
             DESCRIPTION.
 
+        Raises
+        ------
+        ValueError
+            DESCRIPTION.
+
         Returns
         -------
         None.
 
         """
-
+        if file_path[-7:] != "":
+            raise ValueError(
+                "File given is not a Console Logging file (.conlog). Please "
+                + "make sure the file is the properly formatted file."
+            )
         self.__is_commentator: bool = False
         self.__is_critical: bool = False
         self.__is_separators: bool = False
