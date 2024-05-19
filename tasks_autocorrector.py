@@ -10,6 +10,7 @@ import os
 import sys
 from typing import List, Tuple
 from _io import TextIOWrapper
+import traceback
 
 
 ###############################################################################
@@ -56,7 +57,10 @@ class Special_Text:
 
     Attributes
     ----------
-    lb : array_like(float, ndim=2)
+    special_text : string
+        This is an array of the lower bounds for each dimension
+
+    length_special_text : integer
         This is an array of the lower bounds for each dimension
 
     Methods
@@ -74,9 +78,9 @@ class Special_Text:
 
         Parameters
         ----------
-        texts : str
+        texts : string
             DESCRIPTION.
-        lengths : int
+        lengths : integer
             DESCRIPTION.
 
         Returns
@@ -87,9 +91,9 @@ class Special_Text:
         self.__special_text: str = texts
         self.__length_special_text: int = lengths
 
-    def __iter__(self) -> Tuple(str, int):
+    def __iter__(self) -> Tuple[str, int]:
         """
-
+        Private method. Iterator
 
         Yields
         ------
@@ -97,14 +101,16 @@ class Special_Text:
             DESCRIPTION.
 
         """
-        for text, length in zip(self.__special_text, self.__length_special_text):
+        for text, length in zip(
+            self.__special_text, self.__length_special_text
+        ):
             yield text, length
 
 
 class Console_Log_Line:
     def __del__(self):
         """
-        Closes the open TextIOWrapper before delition.
+        Private method. Closes the open TextIOWrapper before delition.
 
         Returns
         -------
@@ -116,9 +122,9 @@ class Console_Log_Line:
     def __init__(
         self,
         file_path: str,
-        commentators: List(Special_Text),
-        criticals: List(Special_Text),
-        separators: List(Special_Text),
+        commentators: List[Special_Text],
+        criticals: List[Special_Text],
+        separators: List[Special_Text],
     ):
         """
         Private method. Sets up the
@@ -146,7 +152,7 @@ class Console_Log_Line:
         None.
 
         """
-        if file_path[-7:] != "":
+        if file_path[-7:] != ".conlog":
             raise ValueError(
                 "File given is not a Console Logging file (.conlog). Please "
                 + "make sure the file is the properly formatted file."
@@ -163,8 +169,10 @@ class Console_Log_Line:
         self.__criticals: List(Special_Text) = criticals
         self.__separators: List(Special_Text) = separators
 
-        self.__file: TextIOWrapper = open(  # pylint: disable=consider-using-with
-            file_path, "r", encoding="UTF-8"
+        self.__file: TextIOWrapper = (
+            open(  # pylint: disable=consider-using-with
+                file_path, "r", encoding="UTF-8"
+            )
         )
 
         self.read_next_line()
@@ -189,11 +197,11 @@ class Console_Log_Line:
     def number_separators_read(self) -> int:
         return self.__number_separators_read
 
-    def __check_special_text(self, special_texts: List(Special_Text)) -> bool:
+    def __check_special_text(self, special_texts: List[Special_Text]) -> bool:
         """
-        Funtions returns True if one of the strings of list_special_texts is found
-        in the first given positions by list_length_special_texts in the passed
-        text.
+        Funtions returns True if one of the strings of list_special_texts is
+        found in the first given positions by list_length_special_texts in the
+        passed text.
 
         Parameters
         ----------
@@ -204,8 +212,8 @@ class Console_Log_Line:
             List of string, ordered from biggest length to lowest length.
         list_length_special_texts : List[Interger]
             List of integers that represent the length of each string of
-            list_special_texts orderes as list_special_textsis and must have the
-            same length as list_special_texts.
+            list_special_texts orderes as list_special_textsis and must have
+            the same length as list_special_texts.
 
         Raises
         ------
@@ -216,7 +224,8 @@ class Console_Log_Line:
         Returns
         -------
         Bool
-            Return True of False if the text starts with one of the given strings.
+            Return True of False if the text starts with one of the given
+            strings.
 
         """
         for text, length in special_texts:
@@ -280,30 +289,42 @@ def check_environment():
             + FILE_PATH_DIRECTORY_SCRIPTS
             + FILE_NAME_SCRIPT_BATTERY_OF_TESTS
         )
-    if not os.path.isfile(FILE_PATH_DIRECTORY_SCRIPTS + FILE_NAME_SOLUTION_SCRIPT):
+    if not os.path.isfile(
+        FILE_PATH_DIRECTORY_SCRIPTS + FILE_NAME_SOLUTION_SCRIPT
+    ):
         raise FileNotFoundError(
-            "Script solution not found: "
+            "Solution script not found: "
             + FILE_PATH_DIRECTORY_SCRIPTS
             + FILE_NAME_SOLUTION_SCRIPT
         )
-    if not os.path.isfile(FILE_PATH_DIRECTORY_SCRIPTS + FILE_NAME_SUBMITED_SCRIPT):
+    if not os.path.isfile(
+        FILE_PATH_DIRECTORY_SCRIPTS + FILE_NAME_SUBMITED_SCRIPT
+    ):
         raise FileNotFoundError(
-            "Script submission not found: "
+            "Submission script not found: "
             + FILE_PATH_DIRECTORY_SCRIPTS
             + FILE_NAME_SUBMITED_SCRIPT
         )
-    if os.path.isfile(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SOLUTION):
+    if os.path.isfile(
+        FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SOLUTION
+    ):
         if OVERWRITE:
-            os.remove(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SOLUTION)
+            os.remove(
+                FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SOLUTION
+            )
         else:
             raise FileExistsError(
-                "Console output file for solution already exists."
+                "Console output file for solution already exists: "
                 + FILE_PATH_DIRECTORY_SCRIPTS
                 + FILENAME_CONSOLE_OUTPUT_SOLUTION
             )
-    if os.path.isfile(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SUBMITED):
+    if os.path.isfile(
+        FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SUBMITED
+    ):
         if OVERWRITE:
-            os.remove(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SUBMITED)
+            os.remove(
+                FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SUBMITED
+            )
         else:
             raise FileExistsError(
                 "Console output file for submission already exists."
@@ -327,18 +348,29 @@ def clean_environment():
         if os.path.isfile(
             FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SOLUTION
         ):
-            os.remove(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SOLUTION)
+            os.remove(
+                FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SOLUTION
+            )
         if os.path.isfile(
             FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SUBMITED
         ):
-            os.remove(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SUBMITED)
+            os.remove(
+                FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_CONSOLE_OUTPUT_SUBMITED
+            )
         if os.path.isfile(
             FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_METADATA_BATTERY_OF_TESTS
         ):
-            os.remove(FILE_PATH_DIRECTORY_SCRIPTS + FILENAME_METADATA_BATTERY_OF_TESTS)
+            os.remove(
+                FILE_PATH_DIRECTORY_SCRIPTS
+                + FILENAME_METADATA_BATTERY_OF_TESTS
+            )
         if os.path.isdir(FILE_PATH_DIRECTORY_SCRIPTS + "__pycache__"):
-            for file_name in os.listdir(FILE_PATH_DIRECTORY_SCRIPTS + "__pycache__"):
-                os.remove(FILE_PATH_DIRECTORY_SCRIPTS + "__pycache__/" + file_name)
+            for file_name in os.listdir(
+                FILE_PATH_DIRECTORY_SCRIPTS + "__pycache__"
+            ):
+                os.remove(
+                    FILE_PATH_DIRECTORY_SCRIPTS + "__pycache__/" + file_name
+                )
             os.rmdir(FILE_PATH_DIRECTORY_SCRIPTS + "__pycache__")
         if os.path.isdir("__pycache__"):
             for file_name in os.listdir("__pycache__"):
@@ -410,7 +442,10 @@ def compare_results():
     ):
         text = ""
 
-        if file_console_output_solution.line == file_console_output_submission.line:
+        if (
+            file_console_output_solution.line
+            == file_console_output_submission.line
+        ):
             if (
                 file_console_output_solution.is_commentator
                 or file_console_output_solution.is_separators
@@ -634,17 +669,23 @@ def print_with_separators(text, prev_is_separator):
 ###############################################################################
 #                                    MAIN                                    #
 if __name__ == "__main__":
-    check_environment()
+    try:
+        check_environment()
 
-    initialization()
+        initialization()
 
-    evaluate_solution()
+        evaluate_solution()
 
-    evaluate_submission()
+        evaluate_submission()
 
-    compare_results()
+        compare_results()
 
-    clean_environment()
+        clean_environment()
 
-    print("Finished.")
+        print("Finished.")
+    except Exception as exception:  # pylint: disable=broad-except
+        clean_environment()
+        raise exception from exception
+
+
 ###############################################################################
